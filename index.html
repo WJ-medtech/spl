@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SPL POCUS 症例トレーナー</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f5f0e8;
+  --surface: #faf7f2;
+  --surface2: #ede8df;
+  --border: #c8bfaa;
+  --border2: #a89880;
+  --ink: #1a1208;
+  --ink2: #4a3f2f;
+  --ink3: #7a6a55;
+  --red: #c0392b;
+  --amber: #d97706;
+  --green: #166534;
+  --accent: #8b1a1a;
+  --mono: 'Space Mono', monospace;
+  --sans: 'Noto Sans JP', sans-serif;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--sans);
+  min-height: 100vh;
+}
+
+body::after {
+  content:'';
+  position:fixed; inset:0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events:none; z-index:9999; opacity:0.6;
+}
+
+.page {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 48px 24px 80px;
+}
+
+/* ── Header ── */
+.header {
+  margin-bottom: 48px;
+  border-left: 4px solid var(--accent);
+  padding-left: 20px;
+}
+
+.header-tag {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--ink3);
+  margin-bottom: 8px;
+}
+
+.header h1 {
+  font-size: clamp(24px, 5vw, 40px);
+  font-weight: 900;
+  line-height: 1.2;
+  color: var(--ink);
+}
+
+.header h1 em { color: var(--accent); font-style: normal; }
+
+.header-desc {
+  margin-top: 12px;
+  font-size: 13px;
+  color: var(--ink3);
+  line-height: 1.8;
+}
+
+/* ── Stats bar ── */
+.stats-bar {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 36px;
+  flex-wrap: wrap;
+}
+
+.stat {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 20px;
+  flex: 1;
+  min-width: 120px;
+}
+
+.stat-num {
+  font-family: var(--mono);
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--accent);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.stat-label {
+  font-size: 11px;
+  color: var(--ink3);
+}
+
+/* ── Section heading ── */
+.section-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.section-head h2 {
+  font-size: 14px;
+  font-weight: 700;
+  font-family: var(--mono);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--ink2);
+}
+
+.section-head::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* ── Case grid ── */
+.case-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 12px;
+  margin-bottom: 48px;
+}
+
+/* ── Case card ── */
+.case-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: box-shadow 0.2s, transform 0.2s;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.case-card:hover {
+  box-shadow: 0 6px 24px rgba(0,0,0,0.10);
+  transform: translateY(-2px);
+}
+
+.case-card.coming-soon {
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.card-top {
+  padding: 14px 16px 10px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.card-num {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 1px;
+}
+
+.card-badge {
+  font-family: var(--mono);
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: var(--surface2);
+  color: var(--ink3);
+  border: 1px solid var(--border);
+}
+
+.card-badge.emergency { background: rgba(192,57,43,0.08); color: var(--red); border-color: rgba(192,57,43,0.2); }
+.card-badge.outpatient { background: rgba(29,78,216,0.07); color: #1d4ed8; border-color: rgba(29,78,216,0.2); }
+.card-badge.ward { background: rgba(22,101,52,0.07); color: var(--green); border-color: rgba(22,101,52,0.2); }
+.card-badge.home { background: rgba(217,119,6,0.08); color: var(--amber); border-color: rgba(217,119,6,0.2); }
+.card-badge.prehospital { background: rgba(139,26,26,0.07); color: var(--accent); border-color: rgba(139,26,26,0.2); }
+.card-badge.disaster { background: rgba(100,50,0,0.07); color: #7c4a00; border-color: rgba(100,50,0,0.2); }
+
+.card-body {
+  padding: 12px 16px 14px;
+}
+
+.card-chief {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+
+.card-patient {
+  font-size: 12px;
+  color: var(--ink3);
+  margin-bottom: 8px;
+}
+
+.card-dx-hint {
+  font-size: 11px;
+  font-family: var(--mono);
+  color: var(--border2);
+  letter-spacing: 0.5px;
+}
+
+.card-dx-hint.revealed { color: var(--ink3); }
+
+.card-footer {
+  padding: 8px 16px;
+  background: var(--surface2);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.card-echo-tags {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.echo-tag {
+  font-size: 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 1px 6px;
+  color: var(--ink3);
+}
+
+.card-arrow {
+  font-size: 16px;
+  color: var(--border2);
+}
+
+/* ── How to use ── */
+.howto {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin-bottom: 48px;
+}
+
+.howto h3 {
+  font-size: 13px;
+  font-weight: 700;
+  font-family: var(--mono);
+  letter-spacing: 1px;
+  color: var(--ink2);
+  margin-bottom: 14px;
+}
+
+.howto-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.howto-step {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  font-size: 13px;
+  color: var(--ink2);
+  line-height: 1.6;
+}
+
+.step-num {
+  font-family: var(--mono);
+  font-size: 11px;
+  background: var(--ink);
+  color: #f0e8d8;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+/* ── Footer ── */
+.footer {
+  font-size: 11px;
+  color: var(--ink3);
+  font-family: var(--mono);
+  text-align: center;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-tag">SPL 第4回 準決勝対策</div>
+    <h1>POCUS<br>症例<em>トレーナー</em></h1>
+    <p class="header-desc">
+      メディカルラリー形式の症例練習ツール。<br>
+      症例を選んでチームで練習しましょう。初期情報だけ開示 → 段階的に情報を引き出す → 採点シートで振り返り。
+    </p>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-bar">
+    <div class="stat">
+      <div class="stat-num" id="totalCases">1</div>
+      <div class="stat-label">症例数</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">20</div>
+      <div class="stat-label">各症例の配点（点）</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">15</div>
+      <div class="stat-label">分（想定付与5+実技10）</div>
+    </div>
+  </div>
+
+  <!-- How to use -->
+  <div class="howto">
+    <h3>HOW TO USE</h3>
+    <div class="howto-steps">
+      <div class="howto-step">
+        <div class="step-num">1</div>
+        <div>症例カードをクリックして、症例ページを開く。</div>
+      </div>
+      <div class="howto-step">
+        <div class="step-num">2</div>
+        <div>最初は<strong>シチュエーション・主訴・患者背景</strong>だけが見える。答えは最初から出ない。</div>
+      </div>
+      <div class="howto-step">
+        <div class="step-num">3</div>
+        <div>「バイタルを確認」「腹部大動脈エコーを当てる」などのボタンや自由入力で、段階的に情報を引き出す。</div>
+      </div>
+      <div class="howto-step">
+        <div class="step-num">4</div>
+        <div>エコーは資料3準拠の<strong>評価コメント（声出し用）</strong>付き。PLAXなら心膜液・左室収縮・左室拡大を確認。</div>
+      </div>
+      <div class="howto-step">
+        <div class="step-num">5</div>
+        <div>初期対応まで終えたら採点チェックシートが出る。チームでセルフ採点して振り返り。</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Case list -->
+  <div class="section-head"><h2>症例一覧</h2></div>
+  <div class="case-grid" id="caseGrid">
+
+    <!-- ══ 症例01（完成） ══ -->
+    <a class="case-card" href="case1.html">
+      <div class="card-top">
+        <div class="card-num">CASE 01</div>
+        <div class="card-badge emergency">救急外来</div>
+      </div>
+      <div class="card-body">
+        <div class="card-chief">発熱・腹痛</div>
+        <div class="card-patient">68歳 男性</div>
+        <div class="card-dx-hint">●●●●●●●●●●●（隠）</div>
+      </div>
+      <div class="card-footer">
+        <div class="card-echo-tags">
+          <span class="echo-tag">腹部大動脈</span>
+          <span class="echo-tag">FAST</span>
+          <span class="echo-tag">IVC</span>
+          <span class="echo-tag">FoCUS</span>
+        </div>
+        <div class="card-arrow">→</div>
+      </div>
+    </a>
+
+    <!-- ══ 症例02以降：追加するときはここにコピペ ══
+    <a class="case-card" href="case2.html">
+      <div class="card-top">
+        <div class="card-num">CASE 02</div>
+        <div class="card-badge outpatient">外来</div>
+      </div>
+      <div class="card-body">
+        <div class="card-chief">主訴をここに</div>
+        <div class="card-patient">●●歳 男性／女性</div>
+        <div class="card-dx-hint">●●●●●●●●（隠）</div>
+      </div>
+      <div class="card-footer">
+        <div class="card-echo-tags">
+          <span class="echo-tag">使うエコー</span>
+        </div>
+        <div class="card-arrow">→</div>
+      </div>
+    </a>
+    ══ ここまで ══ -->
+
+    <!-- Coming soon placeholders -->
+    <div class="case-card coming-soon">
+      <div class="card-top">
+        <div class="card-num">CASE 02</div>
+        <div class="card-badge">準備中</div>
+      </div>
+      <div class="card-body">
+        <div class="card-chief">準備中</div>
+        <div class="card-patient">---</div>
+      </div>
+      <div class="card-footer">
+        <div class="card-echo-tags"></div>
+        <div class="card-arrow">→</div>
+      </div>
+    </div>
+
+    <div class="case-card coming-soon">
+      <div class="card-top">
+        <div class="card-num">CASE 03</div>
+        <div class="card-badge">準備中</div>
+      </div>
+      <div class="card-body">
+        <div class="card-chief">準備中</div>
+        <div class="card-patient">---</div>
+      </div>
+      <div class="card-footer">
+        <div class="card-echo-tags"></div>
+        <div class="card-arrow">→</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- セッティング凡例 -->
+  <div class="section-head"><h2>セッティング凡例</h2></div>
+  <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:48px;">
+    <span class="card-badge emergency">救急外来</span>
+    <span class="card-badge outpatient">外来</span>
+    <span class="card-badge ward">病棟</span>
+    <span class="card-badge home">在宅</span>
+    <span class="card-badge prehospital">病院前救護（ドクヘリ）</span>
+    <span class="card-badge disaster">災害</span>
+  </div>
+
+  <div class="footer">
+    SPL POCUS Trainer · 第4回対策 · Hoppmann 2022 Table4 準拠<br>
+    症例はClaude（Anthropic）により生成。エコー評価は資料3（チェックリスト）に準拠。
+  </div>
+
+</div>
+</body>
+</html>
