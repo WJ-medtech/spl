@@ -3,1309 +3,1185 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Case 2 – 発熱＋動けない｜SPL メディカルラリー</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+<title>SPL POCUS 症例トレーナー</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #0d1117;
-    --surface: #161b22;
-    --surface2: #1c2230;
-    --border: #2a3245;
-    --accent: #e05c3a;
-    --accent2: #f0a050;
-    --ok: #3dd68c;
-    --warn: #f0a050;
-    --info: #58a6ff;
-    --text: #e6edf3;
-    --text-sub: #8b949e;
-    --red: #e05c3a;
-    --tag-bg: #21262d;
-    --radius: 8px;
-    --shadow: 0 4px 24px rgba(0,0,0,0.5);
-  }
+:root {
+  --bg: #f5f0e8;
+  --surface: #faf7f2;
+  --surface2: #ede8df;
+  --border: #c8bfaa;
+  --border2: #a89880;
+  --ink: #1a1208;
+  --ink2: #4a3f2f;
+  --ink3: #7a6a55;
+  --red: #c0392b;
+  --amber: #d97706;
+  --green: #166534;
+  --blue: #1d4ed8;
+  --accent: #8b1a1a;
+  --mono: 'Space Mono', monospace;
+  --sans: 'Noto Sans JP', sans-serif;
+}
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+* { margin:0; padding:0; box-sizing:border-box; }
 
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Noto Sans JP', sans-serif;
-    min-height: 100vh;
-    font-size: 14px;
-    line-height: 1.6;
-  }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--sans);
+  min-height: 100vh;
+}
 
-  /* ── TOP BAR ── */
-  #topbar {
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    background: rgba(13,17,23,0.95);
-    backdrop-filter: blur(8px);
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    padding: 10px 20px;
-  }
-  .back-link {
-    color: var(--info);
-    text-decoration: none;
-    font-size: 13px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    white-space: nowrap;
-    transition: opacity .2s;
-  }
-  .back-link:hover { opacity: .75; }
-  .topbar-title {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 18px;
-    letter-spacing: 2px;
-    color: var(--accent);
-    flex: 1;
-  }
-  .setting-badge {
-    background: var(--accent);
-    color: #fff;
-    font-size: 11px;
-    font-weight: 700;
-    padding: 3px 10px;
-    border-radius: 20px;
-    letter-spacing: .5px;
-    white-space: nowrap;
-  }
+/* Grain texture overlay */
+body::after {
+  content:'';
+  position:fixed; inset:0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events:none; z-index:9999; opacity:0.6;
+}
 
-  /* ── LAYOUT ── */
-  #app {
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 24px 16px 80px;
-  }
+/* ─── LAYOUT ─── */
+.app { display:flex; min-height:100vh; }
 
-  /* ── HERO CARD ── */
-  .hero {
-    background: linear-gradient(135deg, #1c1018 0%, #1a1e2e 100%);
-    border: 1px solid #3a2020;
-    border-radius: 12px;
-    padding: 28px 28px 24px;
-    margin-bottom: 20px;
-    position: relative;
-    overflow: hidden;
-  }
-  .hero::before {
-    content: '';
-    position: absolute;
-    top: -40px; right: -40px;
-    width: 180px; height: 180px;
-    background: radial-gradient(circle, rgba(224,92,58,.18) 0%, transparent 70%);
-    pointer-events: none;
-  }
-  .hero-label {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    color: var(--accent);
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .hero-label::before {
-    content: '';
-    display: inline-block;
-    width: 8px; height: 8px;
-    background: var(--accent);
-    border-radius: 50%;
-    animation: pulse 1.8s infinite;
-  }
-  @keyframes pulse {
-    0%,100% { opacity:1; transform:scale(1); }
-    50% { opacity:.4; transform:scale(1.3); }
-  }
-  .hero-name {
-    font-size: 22px;
-    font-weight: 700;
-    margin-bottom: 4px;
-  }
-  .hero-chief {
-    font-size: 16px;
-    color: var(--accent2);
-    font-weight: 500;
-    margin-bottom: 14px;
-  }
-  .hero-desc {
-    color: var(--text-sub);
-    font-size: 13px;
-    line-height: 1.8;
-    border-top: 1px solid var(--border);
-    padding-top: 14px;
-  }
-  .hero-desc strong { color: var(--text); }
+/* ─── MAIN ─── */
+.main {
+  flex:1;
+  overflow-y:auto;
+  min-height:100vh;
+}
 
-  /* ── SECTION CARD ── */
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    margin-bottom: 14px;
-    overflow: hidden;
-    animation: fadeSlide .35s ease both;
-  }
-  @keyframes fadeSlide {
-    from { opacity:0; transform:translateY(10px); }
-    to   { opacity:1; transform:translateY(0); }
-  }
-  .card-header {
-    background: var(--surface2);
-    padding: 10px 16px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    border-bottom: 1px solid var(--border);
-  }
-  .card-icon { font-size: 15px; }
-  .card-title {
-    font-weight: 700;
-    font-size: 13px;
-    letter-spacing: .3px;
-    flex: 1;
-  }
-  .card-badge {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    color: var(--text-sub);
-    letter-spacing: 1px;
-    text-transform: uppercase;
-  }
-  .card-body {
-    padding: 16px;
-  }
+/* ─── CASE SCREEN ─── */
+.case-screen { padding: 32px 40px; max-width: 800px; }
 
-  /* ── VITAL GRID ── */
-  .vital-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-    gap: 10px;
-  }
-  .vital-item {
-    background: var(--tag-bg);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 10px 12px;
-  }
-  .vital-label {
-    font-size: 10px;
-    color: var(--text-sub);
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    margin-bottom: 4px;
-    font-family: 'JetBrains Mono', monospace;
-  }
-  .vital-val {
-    font-size: 20px;
-    font-weight: 700;
-    line-height: 1;
-  }
-  .vital-unit { font-size: 11px; color: var(--text-sub); margin-left: 2px; }
-  .vital-item.warn .vital-val { color: var(--warn); }
-  .vital-item.alert .vital-val { color: var(--accent); }
-  .vital-item.ok .vital-val { color: var(--ok); }
+.case-header {
+  display:flex; align-items:flex-start; gap:16px;
+  margin-bottom: 28px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid var(--border);
+}
 
-  /* ── DATA ROWS ── */
-  .data-row {
-    display: flex;
-    gap: 8px;
-    padding: 7px 0;
-    border-bottom: 1px solid rgba(42,50,69,.5);
-    align-items: flex-start;
-  }
-  .data-row:last-child { border-bottom: none; }
-  .data-key {
-    min-width: 110px;
-    font-size: 11px;
-    color: var(--text-sub);
-    font-family: 'JetBrains Mono', monospace;
-    padding-top: 1px;
-    flex-shrink: 0;
-  }
-  .data-val { font-size: 13px; }
-  .tag {
-    display: inline-block;
-    padding: 1px 8px;
-    border-radius: 4px;
-    font-size: 11px;
-    font-weight: 700;
-    margin-left: 6px;
-  }
-  .tag-red { background: rgba(224,92,58,.2); color: var(--accent); }
-  .tag-yellow { background: rgba(240,160,80,.15); color: var(--accent2); }
-  .tag-green { background: rgba(61,214,140,.15); color: var(--ok); }
-  .tag-blue { background: rgba(88,166,255,.15); color: var(--info); }
+.case-badge {
+  background: var(--accent);
+  color:#fff;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing:2px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  white-space:nowrap;
+}
 
-  /* ── ECHO SECTION ── */
-  .echo-tabs {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-bottom: 14px;
-  }
-  .echo-tab {
-    padding: 5px 12px;
-    border-radius: 20px;
-    border: 1px solid var(--border);
-    background: var(--tag-bg);
-    color: var(--text-sub);
-    font-size: 12px;
-    cursor: pointer;
-    transition: all .2s;
-    font-family: 'Noto Sans JP', sans-serif;
-  }
-  .echo-tab:hover { border-color: var(--info); color: var(--info); }
-  .echo-tab.active { background: var(--info); color: #fff; border-color: var(--info); }
-  .echo-tab.done { background: rgba(61,214,140,.15); border-color: var(--ok); color: var(--ok); }
+.case-meta { flex:1; }
 
-  .echo-panel {
-    display: none;
-    animation: fadeSlide .25s ease;
-  }
-  .echo-panel.active { display: block; }
+.case-setting-tag {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: var(--ink3);
+  text-transform:uppercase;
+  margin-bottom: 4px;
+}
 
-  .echo-result {
-    background: var(--tag-bg);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 14px;
-  }
-  .echo-result-header {
-    font-size: 11px;
-    color: var(--text-sub);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    font-family: 'JetBrains Mono', monospace;
-    margin-bottom: 8px;
-  }
-  .echo-image-placeholder {
-    background: #0d1117;
-    border: 1px dashed var(--border);
-    border-radius: 6px;
-    height: 100px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--text-sub);
-    font-size: 12px;
-    margin-bottom: 12px;
-  }
+.case-title-main {
+  font-size: 22px;
+  font-weight: 900;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
 
-  .comment-box {
-    background: rgba(61,214,140,.07);
-    border: 1px solid rgba(61,214,140,.25);
-    border-left: 3px solid var(--ok);
-    border-radius: 4px;
-    padding: 12px 14px;
-    margin-top: 10px;
-  }
-  .comment-box-label {
-    font-size: 10px;
-    color: var(--ok);
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    font-family: 'JetBrains Mono', monospace;
-    margin-bottom: 6px;
-  }
-  .comment-box-text {
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--text);
-    line-height: 1.8;
-  }
+.case-subtitle { font-size: 13px; color: var(--ink3); }
 
-  .finding-box {
-    background: rgba(224,92,58,.06);
-    border: 1px solid rgba(224,92,58,.2);
-    border-left: 3px solid var(--accent);
-    border-radius: 4px;
-    padding: 10px 14px;
-    margin-top: 8px;
-    font-size: 13px;
-    color: var(--text);
-  }
-  .finding-label {
-    font-size: 10px;
-    color: var(--accent);
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    font-family: 'JetBrains Mono', monospace;
-    margin-bottom: 4px;
-  }
+/* Info box */
+.info-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin-bottom: 20px;
+}
 
-  /* ── HINT ── */
-  .hint-box {
-    background: rgba(88,166,255,.07);
-    border: 1px solid rgba(88,166,255,.2);
-    border-radius: 6px;
-    padding: 12px 14px;
-    margin-top: 12px;
-    font-size: 12px;
-    color: var(--text-sub);
-  }
-  .hint-box strong { color: var(--info); }
+.info-box-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  color: var(--ink3);
+  margin-bottom: 10px;
+}
 
-  /* ── ABCDE ── */
-  .abcde-grid {
-    display: grid;
-    grid-template-columns: 32px 1fr;
-    gap: 6px 12px;
-    align-items: start;
-  }
-  .abcde-letter {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 20px;
-    color: var(--accent2);
-    line-height: 1;
-    padding-top: 2px;
-  }
-  .abcde-content { font-size: 13px; padding-top: 2px; }
-  .abcde-sep {
-    grid-column: 1/-1;
-    height: 1px;
-    background: var(--border);
-    margin: 2px 0;
-  }
+.info-row {
+  display:flex; gap:12px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+  font-size:13px;
+}
+.info-row:last-child { border:none; }
+.info-key { color:var(--ink3); min-width:100px; }
+.info-val { color:var(--ink); font-weight:500; }
 
-  /* ── BUTTONS ── */
-  .btn-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 20px;
-  }
-  .btn {
-    padding: 9px 18px;
-    border-radius: var(--radius);
-    border: none;
-    cursor: pointer;
-    font-family: 'Noto Sans JP', sans-serif;
-    font-size: 13px;
-    font-weight: 700;
-    transition: all .2s;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .btn-primary {
-    background: var(--accent);
-    color: #fff;
-  }
-  .btn-primary:hover { background: #c94a2a; }
-  .btn-secondary {
-    background: var(--surface2);
-    color: var(--text);
-    border: 1px solid var(--border);
-  }
-  .btn-secondary:hover { border-color: var(--info); color: var(--info); }
-  .btn-echo {
-    background: rgba(88,166,255,.12);
-    color: var(--info);
-    border: 1px solid rgba(88,166,255,.3);
-  }
-  .btn-echo:hover { background: rgba(88,166,255,.25); }
-  .btn-score {
-    background: linear-gradient(135deg, #3dd68c, #26a269);
-    color: #fff;
-  }
-  .btn-score:hover { opacity: .9; }
-  .btn:disabled {
-    opacity: .4;
-    cursor: default;
-  }
+/* ─── ACTION PANEL ─── */
+.action-panel {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
 
-  /* ── DIAGNOSIS ── */
-  .diagnosis-card {
-    background: linear-gradient(135deg, #0d1f14 0%, #0e1728 100%);
-    border: 1px solid rgba(61,214,140,.3);
-    border-radius: 10px;
-    padding: 24px;
-  }
-  .diagnosis-title {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 26px;
-    color: var(--ok);
-    letter-spacing: 2px;
-    margin-bottom: 8px;
-  }
-  .diagnosis-subtitle {
-    color: var(--text-sub);
-    font-size: 13px;
-    margin-bottom: 16px;
-  }
-  .key-point {
-    background: rgba(61,214,140,.08);
-    border-left: 3px solid var(--ok);
-    padding: 8px 14px;
-    border-radius: 0 4px 4px 0;
-    margin-bottom: 8px;
-    font-size: 13px;
-  }
+.action-panel-title {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  color: var(--ink3);
+  margin-bottom: 14px;
+  display:flex; align-items:center; gap:8px;
+}
 
-  /* ── SCORING SHEET ── */
-  .score-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 13px;
-  }
-  .score-table th {
-    background: var(--surface2);
-    color: var(--text-sub);
-    font-size: 11px;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    padding: 8px 10px;
-    text-align: left;
-    border-bottom: 2px solid var(--border);
-  }
-  .score-table td {
-    padding: 9px 10px;
-    border-bottom: 1px solid rgba(42,50,69,.5);
-    vertical-align: top;
-  }
-  .score-table tr:last-child td { border-bottom: none; }
-  .score-table tr:hover td { background: rgba(255,255,255,.02); }
-  .score-no {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 12px;
-    color: var(--text-sub);
-    text-align: center;
-  }
-  .score-pts {
-    font-family: 'JetBrains Mono', monospace;
-    font-weight: 700;
-    color: var(--accent2);
-    text-align: center;
-  }
-  .score-total {
-    background: var(--surface2);
-    font-weight: 700;
-    font-size: 14px;
-  }
-  .score-total td:last-child {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 22px;
-    color: var(--ok);
-    text-align: center;
-  }
+.action-panel-title::after {
+  content:'';
+  flex:1; height:1px; background:var(--border);
+}
 
-  /* ── PROGRESS BAR ── */
-  .progress-bar {
-    height: 3px;
-    background: var(--border);
-    border-radius: 2px;
-    margin-bottom: 20px;
-  }
-  .progress-fill {
-    height: 100%;
-    background: var(--accent);
-    border-radius: 2px;
-    transition: width .5s ease;
-  }
+.action-grid {
+  display:flex; flex-wrap:wrap; gap:8px;
+}
 
-  /* ── FLOW INDICATOR ── */
-  .flow {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    flex-wrap: wrap;
-    margin-bottom: 20px;
-    font-size: 11px;
-    color: var(--text-sub);
-    font-family: 'JetBrains Mono', monospace;
-  }
-  .flow-step { padding: 3px 8px; border-radius: 4px; }
-  .flow-step.done { background: rgba(61,214,140,.15); color: var(--ok); }
-  .flow-step.current { background: rgba(88,166,255,.15); color: var(--info); font-weight: 700; }
-  .flow-step.pending { color: var(--border); }
-  .flow-arrow { color: var(--border); }
+.act-btn {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  padding: 7px 14px;
+  font-size:12px;
+  color: var(--ink2);
+  cursor:pointer;
+  font-family: var(--sans);
+  transition: all 0.15s;
+  white-space:nowrap;
+}
 
-  /* ── SEPARATOR ── */
-  .sep { height: 1px; background: var(--border); margin: 20px 0; }
+.act-btn:hover {
+  background: var(--ink);
+  color: #f0e8d8;
+  border-color: var(--ink);
+}
 
-  /* ── ECHO DONE STAMP ── */
-  .echo-done-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    background: rgba(61,214,140,.12);
-    border: 1px solid var(--ok);
-    color: var(--ok);
-    border-radius: 4px;
-    padding: 2px 8px;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: .5px;
-  }
+.act-btn.revealed {
+  background: rgba(22,101,52,0.08);
+  border-color: var(--green);
+  color: var(--green);
+}
 
-  /* ── RESPONSIVE ── */
-  @media (max-width: 600px) {
-    .vital-grid { grid-template-columns: repeat(2, 1fr); }
-    .topbar-title { font-size: 14px; }
-    .hero-name { font-size: 18px; }
-  }
+/* ─── RESPONSE LOG ─── */
+.response-log {
+  display:flex; flex-direction:column; gap:14px;
+  margin-bottom: 20px;
+}
 
-  /* HIDDEN */
-  .hidden { display: none !important; }
+.log-entry {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow:hidden;
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from { opacity:0; transform:translateY(6px); }
+  to { opacity:1; transform:translateY(0); }
+}
+
+.log-entry-head {
+  padding: 8px 14px;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing:1px;
+  color: var(--ink3);
+  display:flex; align-items:center; gap:8px;
+}
+
+.log-entry-head .dot {
+  width:6px; height:6px; border-radius:50%;
+  background: var(--green);
+}
+
+.log-body {
+  padding: 14px 16px;
+  font-size: 13px;
+  line-height:1.8;
+  color: var(--ink2);
+}
+
+.log-body strong { color:var(--ink); }
+.log-body .warn { color:var(--red); font-weight:600; }
+.log-body .ok { color:var(--green); font-weight:600; }
+.log-body .caution { color:var(--amber); font-weight:600; }
+
+.val-table { width:100%; border-collapse:collapse; margin-top:8px; }
+.val-table td {
+  padding: 4px 0;
+  border-bottom: 1px solid var(--border);
+  font-size:13px;
+  vertical-align:top;
+}
+.val-table td:first-child { color:var(--ink3); min-width:130px; padding-right:12px; }
+.val-table td:last-child { color:var(--ink); }
+.val-table tr:last-child td { border:none; }
+
+/* ─── FREE QUESTION ─── */
+.freeq-area {
+  display:flex; gap:10px;
+  margin-bottom: 20px;
+}
+
+.freeq-input {
+  flex:1;
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+  background: var(--surface);
+  color: var(--ink);
+  font-family: var(--sans);
+  outline:none;
+  transition: border-color 0.2s;
+}
+.freeq-input:focus { border-color: var(--ink); }
+.freeq-input::placeholder { color:var(--ink3); }
+
+.freeq-btn {
+  background: var(--ink);
+  color:#f0e8d8;
+  border:none;
+  border-radius:8px;
+  padding: 0 20px;
+  font-size:13px;
+  font-family:var(--sans);
+  cursor:pointer;
+  transition: opacity 0.2s;
+  white-space:nowrap;
+}
+.freeq-btn:hover { opacity:0.8; }
+
+/* ─── PHASE BAR ─── */
+.phase-bar {
+  display:flex; gap:4px;
+  margin-bottom: 24px;
+}
+
+.phase-step {
+  flex:1;
+  height:4px;
+  border-radius:4px;
+  background: var(--border);
+  transition: background 0.3s;
+}
+
+.phase-step.done { background: var(--green); }
+.phase-step.current { background: var(--amber); }
+
+.phase-label {
+  display:flex; justify-content:space-between;
+  font-size:10px; font-family:var(--mono);
+  color:var(--ink3);
+  margin-bottom: 16px;
+}
+
+/* ─── FINISH BUTTON ─── */
+.finish-btn {
+  width:100%;
+  background: var(--accent);
+  color:#fff;
+  border:none;
+  border-radius: 10px;
+  padding: 14px;
+  font-size:15px;
+  font-weight:700;
+  font-family:var(--sans);
+  cursor:pointer;
+  transition: opacity 0.2s;
+  margin-bottom:20px;
+  display:none;
+}
+.finish-btn:hover { opacity:0.88; }
+.finish-btn.visible { display:block; }
+
+/* ─── SCORE SHEET ─── */
+.score-sheet {
+  background: var(--surface);
+  border: 2px solid var(--ink);
+  border-radius: 12px;
+  padding: 28px;
+  margin-bottom: 32px;
+  display:none;
+}
+
+.score-sheet.visible { display:block; animation: slideIn 0.4s ease; }
+
+.score-sheet-title {
+  font-family: var(--mono);
+  font-size: 14px;
+  font-weight:700;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  color:var(--ink);
+  margin-bottom:4px;
+}
+
+.score-sheet-sub {
+  font-size:12px; color:var(--ink3);
+  margin-bottom: 20px;
+}
+
+.score-table { width:100%; border-collapse:collapse; }
+.score-table th {
+  text-align:left;
+  font-family:var(--mono);
+  font-size:10px;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  color:var(--ink3);
+  padding: 6px 8px;
+  border-bottom: 2px solid var(--border2);
+}
+
+.score-table td {
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--border);
+  font-size:13px;
+  vertical-align:top;
+}
+
+.score-table tr:last-child td { border:none; }
+
+.score-check {
+  display:flex; gap:8px; align-items:center;
+}
+
+.check-box {
+  width:20px; height:20px;
+  border: 2px solid var(--border2);
+  border-radius:4px;
+  cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  font-size:13px;
+  transition: all 0.15s;
+  flex-shrink:0;
+}
+.check-box.checked {
+  background: var(--green);
+  border-color: var(--green);
+  color:#fff;
+}
+
+.score-pts {
+  font-family:var(--mono);
+  font-size:12px;
+  color:var(--ink3);
+  white-space:nowrap;
+}
+
+.total-score-area {
+  margin-top:20px;
+  padding-top:16px;
+  border-top: 2px solid var(--ink);
+  display:flex; justify-content:space-between; align-items:center;
+}
+
+.total-label { font-size:14px; font-weight:700; }
+
+.total-val {
+  font-family:var(--mono);
+  font-size:28px;
+  font-weight:700;
+  color:var(--accent);
+}
+
+.score-comment {
+  margin-top:16px;
+  padding: 14px 16px;
+  border-radius:8px;
+  font-size:13px;
+  line-height:1.7;
+}
+
+.score-comment.great { background:rgba(22,101,52,0.08); border:1px solid rgba(22,101,52,0.2); color:var(--green); }
+.score-comment.good { background:rgba(217,119,6,0.08); border:1px solid rgba(217,119,6,0.2); color:var(--amber); }
+.score-comment.review { background:rgba(192,57,43,0.08); border:1px solid rgba(192,57,43,0.2); color:var(--red); }
+
+/* ─── UTIL ─── */
+.hidden { display:none !important; }
+
+@media (max-width:700px) {
+  .case-screen { padding:20px 16px; }
+}
 </style>
 </head>
 <body>
+<div class="app">
 
-<!-- TOP BAR -->
-<div id="topbar">
-  <a class="back-link" href="index.html">← 症例一覧へ戻る</a>
-  <div class="topbar-title">SPL Medical Rally — Case 2</div>
-  <div class="setting-badge">🚨 救急外来</div>
+<!-- ═══ MAIN ═══ -->
+<main class="main" id="mainArea">
+  <div class="case-screen" id="caseScreen">
+
+    <div class="case-header">
+      <div class="case-meta">
+        <div class="case-setting-tag" id="caseSettingTag"></div>
+        <div class="case-title-main" id="caseTitleMain"></div>
+        <div class="case-subtitle" id="caseSubtitle"></div>
+      </div>
+      <div class="case-badge" id="caseBadge"></div>
+    </div>
+
+    <!-- Phase bar -->
+    <div class="phase-bar">
+      <div class="phase-step current" id="ph0"></div>
+      <div class="phase-step" id="ph1"></div>
+      <div class="phase-step" id="ph2"></div>
+      <div class="phase-step" id="ph3"></div>
+      <div class="phase-step" id="ph4"></div>
+    </div>
+    <div class="phase-label">
+      <span>初期情報</span>
+      <span>問診・バイタル</span>
+      <span>身体所見</span>
+      <span>エコー</span>
+      <span>初期対応</span>
+    </div>
+
+    <!-- Initial info -->
+    <div class="info-box">
+      <div class="info-box-label">初期情報（開示済）</div>
+      <div id="initialInfo"></div>
+    </div>
+
+    <!-- Action buttons -->
+    <div class="action-panel">
+      <div class="action-panel-title">情報を確認する</div>
+      <div class="action-grid" id="actionGrid"></div>
+    </div>
+
+    <!-- Free question -->
+    <div class="freeq-area">
+      <input class="freeq-input" id="freeqInput" placeholder="自由に質問（例：右膝を押したら？　膝蓋上嚢エコーをあてたら？）"
+        onkeydown="if(event.key==='Enter') freeQuestion()">
+      <button class="freeq-btn" onclick="freeQuestion()">質問 →</button>
+    </div>
+
+    <!-- Response log -->
+    <div class="response-log" id="responseLog"></div>
+
+    <!-- Finish button -->
+    <button class="finish-btn" id="finishBtn" onclick="showScoreSheet()">
+      ✅ 初期対応を終了して採点シートへ
+    </button>
+
+    <!-- Score sheet -->
+    <div class="score-sheet" id="scoreSheet">
+      <div class="score-sheet-title">評価チェックシート</div>
+      <div class="score-sheet-sub" id="scoreSheetSub"></div>
+      <table class="score-table" id="scoreTable"></table>
+      <div class="total-score-area">
+        <div class="total-label">合計点</div>
+        <div class="total-val" id="totalScoreVal">— / 20</div>
+      </div>
+      <div class="score-comment" id="scoreComment"></div>
+    </div>
+
+  </div>
+</main>
 </div>
 
-<div id="app">
-
-  <!-- FLOW INDICATOR -->
-  <div class="flow" id="flowIndicator">
-    <span class="flow-step done" id="flow-init">初期情報</span>
-    <span class="flow-arrow">›</span>
-    <span class="flow-step pending" id="flow-vital">バイタル</span>
-    <span class="flow-arrow">›</span>
-    <span class="flow-step pending" id="flow-hx">問診</span>
-    <span class="flow-arrow">›</span>
-    <span class="flow-step pending" id="flow-pe">身体所見</span>
-    <span class="flow-arrow">›</span>
-    <span class="flow-step pending" id="flow-lab">採血</span>
-    <span class="flow-arrow">›</span>
-    <span class="flow-step pending" id="flow-echo">POCUS</span>
-    <span class="flow-arrow">›</span>
-    <span class="flow-step pending" id="flow-dx">診断</span>
-  </div>
-
-  <!-- PROGRESS -->
-  <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:14%"></div></div>
-
-  <!-- HERO: 初期情報 (常時表示) -->
-  <div class="hero">
-    <div class="hero-label">症例 02 / 救急外来</div>
-    <div class="hero-name">78歳 女性</div>
-    <div class="hero-chief">主訴：発熱・体が痛くて動けない</div>
-    <div class="hero-desc">
-      <strong>来院状況：</strong>2日前から発熱と全身倦怠感が続いている。本日朝、「体が痛くて全然動けない」と訴え、家族が救急要請した。<br>
-      <strong>搬送時：</strong>意識は清明だが顔色不良。歩行不能で担架搬送。
-    </div>
-  </div>
-
-  <!-- === STEP 1: VITALS === -->
-  <div id="sec-vital" class="hidden">
-    <div class="card">
-      <div class="card-header">
-        <span class="card-icon">📊</span>
-        <span class="card-title">バイタルサイン</span>
-        <span class="card-badge">Triage</span>
-      </div>
-      <div class="card-body">
-        <div class="vital-grid">
-          <div class="vital-item alert">
-            <div class="vital-label">Temp</div>
-            <div class="vital-val">38.8<span class="vital-unit">℃</span></div>
-          </div>
-          <div class="vital-item warn">
-            <div class="vital-label">HR</div>
-            <div class="vital-val">110<span class="vital-unit">bpm</span></div>
-          </div>
-          <div class="vital-item warn">
-            <div class="vital-label">BP</div>
-            <div class="vital-val">112/64<span class="vital-unit">mmHg</span></div>
-          </div>
-          <div class="vital-item warn">
-            <div class="vital-label">RR</div>
-            <div class="vital-val">20<span class="vital-unit">/min</span></div>
-          </div>
-          <div class="vital-item ok">
-            <div class="vital-label">SpO₂</div>
-            <div class="vital-val">96<span class="vital-unit">%</span></div>
-          </div>
-          <div class="vital-item ok">
-            <div class="vital-label">GCS</div>
-            <div class="vital-val">15<span class="vital-unit">pt</span></div>
-          </div>
-        </div>
-        <div class="hint-box" style="margin-top:12px;">
-          <strong>🔴 qSOFA score 2点（RR≥22は境界、BP≤100は境界だが HR上昇・発熱あり）</strong><br>
-          発熱＋頻脈＋やや低め血圧 → <strong>敗血症を念頭に置いてフォーカス検索</strong>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- === STEP 2: ABCDE === -->
-  <div id="sec-abcde" class="hidden">
-    <div class="card">
-      <div class="card-header">
-        <span class="card-icon">🔍</span>
-        <span class="card-title">一次評価（ABCDE）</span>
-        <span class="card-badge">Primary Survey</span>
-      </div>
-      <div class="card-body">
-        <div class="abcde-grid">
-          <div class="abcde-letter">A</div>
-          <div class="abcde-content">Airway — 開通，発語あり，舌根沈下なし</div>
-          <div class="abcde-sep"></div>
-          <div class="abcde-letter">B</div>
-          <div class="abcde-content">Breathing — RR 20/min，SpO₂ 96%（室内気），呼吸補助筋の使用なし</div>
-          <div class="abcde-sep"></div>
-          <div class="abcde-letter">C</div>
-          <div class="abcde-content">Circulation — HR 110，BP 112/64，皮膚：やや湿潤・温感あり，末梢冷感なし</div>
-          <div class="abcde-sep"></div>
-          <div class="abcde-letter">D</div>
-          <div class="abcde-content">Disability — GCS 15（E4V5M6），血糖 118 mg/dL，瞳孔 3/3 mm 正円同大</div>
-          <div class="abcde-sep"></div>
-          <div class="abcde-letter">E</div>
-          <div class="abcde-content">Exposure — 体温 38.8℃，皮疹なし，外傷なし，関節腫脹の評価は後述</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- === STEP 3: HISTORY (OPQRST) === -->
-  <div id="sec-opqrst" class="hidden">
-    <div class="card">
-      <div class="card-header">
-        <span class="card-icon">💬</span>
-        <span class="card-title">問診 — OPQRST</span>
-        <span class="card-badge">History</span>
-      </div>
-      <div class="card-body">
-        <div class="data-row"><div class="data-key">O（発症）</div><div class="data-val">2日前から徐々に，特定のきっかけなし</div></div>
-        <div class="data-row"><div class="data-key">P（増悪/寛解）</div><div class="data-val">動かすと全身が痛い。安静でやや楽。解熱剤（市販薬）は少し効いた</div></div>
-        <div class="data-row"><div class="data-key">Q（性状）</div><div class="data-val">「体がズキズキ痛い」「特にどこか一か所とは言えない」→ <span class="tag tag-yellow">びまん性</span></div></div>
-        <div class="data-row"><div class="data-key">R（放散）</div><div class="data-val">「全部痛い」。具体的な関節を指摘させると…<br>→ <strong>右膝を押すと特に痛がる</strong> <span class="tag tag-red">KEY所見</span></div></div>
-        <div class="data-row"><div class="data-key">S（重症度）</div><div class="data-val">NRS 6/10</div></div>
-        <div class="data-row"><div class="data-key">T（時間経過）</div><div class="data-val">2日間持続、徐々に増悪傾向</div></div>
-        <div class="data-row"><div class="data-key">頭痛</div><div class="data-val">少しある（頸部硬直の評価が困難）</div></div>
-        <div class="data-row"><div class="data-key">腹痛</div><div class="data-val">なし</div></div>
-        <div class="data-row"><div class="data-key">咳・呼吸器症状</div><div class="data-val">なし</div></div>
-        <div class="data-row"><div class="data-key">排尿時痛</div><div class="data-val">なし</div></div>
-        <div class="hint-box">
-          <strong>⚡ フォーカス不明の発熱。</strong>全身がびまん性に痛いと言うが、詳細に聞くと<strong>右膝に圧痛</strong>がある。関節炎を念頭に置く。
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- === STEP 3b: AMPLE === -->
-  <div id="sec-ample" class="hidden">
-    <div class="card">
-      <div class="card-header">
-        <span class="card-icon">📋</span>
-        <span class="card-title">問診 — AMPLE</span>
-        <span class="card-badge">Past History</span>
-      </div>
-      <div class="card-body">
-        <div class="data-row"><div class="data-key">A（アレルギー）</div><div class="data-val">なし</div></div>
-        <div class="data-row"><div class="data-key">M（内服）</div><div class="data-val">アムロジピン（高血圧），アレンドロン酸（骨粗鬆症），チアジド系利尿剤（高血圧） <span class="tag tag-yellow">利尿剤</span></div></div>
-        <div class="data-row"><div class="data-key">P（既往歴）</div><div class="data-val">高血圧，骨粗鬆症，変形性膝関節症（数年前に診断）</div></div>
-        <div class="data-row"><div class="data-key">L（最終食事）</div><div class="data-val">昨日の朝食（食欲なく以降はほぼ絶食）</div></div>
-        <div class="data-row"><div class="data-key">E（現病歴補足）</div><div class="data-val">3か月前に「急に膝が腫れた」と整形外科を受診したことあり（詳細不明）</div></div>
-        <div class="hint-box">
-          <strong>利尿剤（チアジド系）→ 高尿酸血症リスク。</strong>3か月前の膝腫脹のエピソード。偽痛風（CPPD結晶沈着症）または痛風を示唆。
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- === STEP 4: PE === -->
-  <div id="sec-pe" class="hidden">
-    <div class="card">
-      <div class="card-header">
-        <span class="card-icon">🩺</span>
-        <span class="card-title">身体所見</span>
-        <span class="card-badge">Physical Exam</span>
-      </div>
-      <div class="card-body">
-        <div class="data-row"><div class="data-key">頭頸部</div><div class="data-val">頸部：動かすと痛がる（評価が難しい）。項部硬直の評価は難しいが厳密な硬直なし <span class="tag tag-yellow">要注意</span></div></div>
-        <div class="data-row"><div class="data-key">胸部</div><div class="data-val">肺音清明，心音整・雑音なし</div></div>
-        <div class="data-row"><div class="data-key">腹部</div><div class="data-val">平坦・軟，圧痛なし，腸音正常</div></div>
-        <div class="data-row"><div class="data-key">四肢・関節</div><div class="data-val"><strong>右膝関節：</strong>軽度腫脹・熱感・圧痛 <span class="tag tag-red">陽性</span><br>その他関節：明らかな腫脹なし（全体的に痛がる）</div></div>
-        <div class="data-row"><div class="data-key">皮膚・リンパ</div><div class="data-val">皮疹なし，リンパ節腫脹なし，発赤・皮膚欠損なし</div></div>
-        <div class="data-row"><div class="data-key">神経学的所見</div><div class="data-val">上下肢筋力保たれる，感覚障害なし，深部腱反射正常</div></div>
-        <div class="finding-box">
-          <div class="finding-label">🎯 KEY FINDING</div>
-          <strong>「どこが痛いか分からない」高齢女性 → 詳細な身体診察で右膝関節炎を同定。</strong><br>
-          発熱＋関節炎 → 感染性関節炎 vs 結晶誘発性関節炎（偽痛風・痛風）の鑑別が急務
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- === STEP 5: LAB === -->
-  <div id="sec-lab" class="hidden">
-    <div class="card">
-      <div class="card-header">
-        <span class="card-icon">🧪</span>
-        <span class="card-title">採血・検査結果</span>
-        <span class="card-badge">Lab</span>
-      </div>
-      <div class="card-body">
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0 20px;">
-          <div>
-            <div class="data-row"><div class="data-key">WBC</div><div class="data-val">13,800 /µL <span class="tag tag-yellow">↑</span></div></div>
-            <div class="data-row"><div class="data-key">CRP</div><div class="data-val">12.4 mg/dL <span class="tag tag-red">↑↑</span></div></div>
-            <div class="data-row"><div class="data-key">PCT</div><div class="data-val">0.8 ng/mL <span class="tag tag-yellow">境界</span></div></div>
-            <div class="data-row"><div class="data-key">Cr / BUN</div><div class="data-val">1.1 / 24 mg/dL</div></div>
-            <div class="data-row"><div class="data-key">UA（尿酸）</div><div class="data-val">8.2 mg/dL <span class="tag tag-yellow">↑</span></div></div>
-          </div>
-          <div>
-            <div class="data-row"><div class="data-key">Hb</div><div class="data-val">11.2 g/dL <span class="tag tag-yellow">軽度低値</span></div></div>
-            <div class="data-row"><div class="data-key">Plt</div><div class="data-val">21.0 万/µL</div></div>
-            <div class="data-row"><div class="data-key">Na/K/Cl</div><div class="data-val">138/3.7/102</div></div>
-            <div class="data-row"><div class="data-key">Lac</div><div class="data-val">1.8 mmol/L</div></div>
-            <div class="data-row"><div class="data-key">血培</div><div class="data-val">提出済（結果待ち）</div></div>
-          </div>
-        </div>
-        <div class="hint-box" style="margin-top:12px;">
-          <strong>PCT 0.8 → 敗血症の閾値（＞2）には達しない。CRP大幅上昇だが、結晶性関節炎でも高値になる。</strong><br>
-          次のステップ：<strong>右膝関節液穿刺 ± エコーで関節液量・結晶確認</strong>が重要。同時にPOCUSで全身評価。
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- === STEP 6: ECHO === -->
-  <div id="sec-echo" class="hidden">
-    <div class="card">
-      <div class="card-header">
-        <span class="card-icon">🔊</span>
-        <span class="card-title">POCUS — ポイントオブケア超音波</span>
-        <span class="card-badge">Echo</span>
-      </div>
-      <div class="card-body">
-
-        <p style="font-size:12px; color:var(--text-sub); margin-bottom:14px;">
-          ※ 準決勝・決勝では描出時に<strong style="color:var(--ok);">声に出してコメント</strong>してください。以下のボタンを押して各部位の所見と推奨コメントを確認。
-        </p>
-
-        <!-- TAB BUTTONS -->
-        <div class="echo-tabs">
-          <button class="echo-tab" onclick="showEcho('lung')" id="tab-lung">🫁 肺</button>
-          <button class="echo-tab" onclick="showEcho('plax')" id="tab-plax">❤️ PLAX</button>
-          <button class="echo-tab" onclick="showEcho('psax')" id="tab-psax">❤️ PSAX</button>
-          <button class="echo-tab" onclick="showEcho('a4c')" id="tab-a4c">❤️ A4C</button>
-          <button class="echo-tab" onclick="showEcho('ivc')" id="tab-ivc">〇 IVC</button>
-          <button class="echo-tab" onclick="showEcho('fast')" id="tab-fast">🩸 FAST</button>
-          <button class="echo-tab" onclick="showEcho('aorta')" id="tab-aorta">🩺 腹部大動脈</button>
-          <button class="echo-tab" onclick="showEcho('gb')" id="tab-gb">🫗 胆嚢</button>
-          <button class="echo-tab" onclick="showEcho('kidney')" id="tab-kidney">🫘 腎臓</button>
-          <button class="echo-tab" onclick="showEcho('dvt')" id="tab-dvt">🦵 DVT</button>
-          <button class="echo-tab" onclick="showEcho('knee')" id="tab-knee">🦴 膝（★注目）</button>
-          <button class="echo-tab" onclick="showEcho('shoulder')" id="tab-shoulder">💪 肩</button>
-          <button class="echo-tab" onclick="showEcho('thyroid')" id="tab-thyroid">🔬 甲状腺</button>
-        </div>
-
-        <!-- ECHO PANELS -->
-
-        <!-- 肺 -->
-        <div class="echo-panel" id="ep-lung">
-          <div class="echo-result">
-            <div class="echo-result-header">肺エコー（リニアプローブ）— 両側 部位1・4</div>
-            <div class="echo-image-placeholder">🫁 [バッドサイン / Curtain sign 確認画面]</div>
-            <div class="data-row"><div class="data-key">右前胸部上部</div><div class="data-val">Lung sliding あり，Bラインなし，胸水なし</div></div>
-            <div class="data-row"><div class="data-key">右側胸部下部</div><div class="data-val">Curtain sign あり，胸水なし</div></div>
-            <div class="data-row"><div class="data-key">左前胸部上部</div><div class="data-val">Lung sliding あり，Bラインなし，胸水なし</div></div>
-            <div class="data-row"><div class="data-key">左側胸部下部</div><div class="data-val">Curtain sign あり，胸水なし</div></div>
-            <div class="comment-box">
-              <div class="comment-box-label">🎤 推奨コメント（声出し）</div>
-              <div class="comment-box-text">
-                「右前胸部を確認します。バッドサインを確認しました。Lung slidingあり、Bラインなし、胸水なし。<br>
-                続いて側胸部下部、Curtain signあり、胸水なし。左側も同様に確認しました。両肺とも問題ありません。」
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- PLAX -->
-        <div class="echo-panel" id="ep-plax">
-          <div class="echo-result">
-            <div class="echo-result-header">心臓 — 傍胸骨左室長軸像（PLAX）</div>
-            <div class="echo-image-placeholder">❤️ [傍胸骨左室長軸像]</div>
-            <div class="data-row"><div class="data-key">左室</div><div class="data-val">拡大なし（目安 ＜55 mm），壁運動良好</div></div>
-            <div class="data-row"><div class="data-key">大動脈弁・僧帽弁</div><div class="data-val">弁の明らかな異常なし</div></div>
-            <div class="data-row"><div class="data-key">心膜</div><div class="data-val">心膜液貯留なし</div></div>
-            <div class="comment-box">
-              <div class="comment-box-label">🎤 推奨コメント（声出し）</div>
-              <div class="comment-box-text">
-                「傍胸骨左室長軸像を描出しました。左房・左室・大動脈弁が見えています。左室収縮は問題ありません。左室拡大なし。心膜液貯留なし。」
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- PSAX -->
-        <div class="echo-panel" id="ep-psax">
-          <div class="echo-result">
-            <div class="echo-result-header">心臓 — 傍胸骨左室短軸像（PSAX）乳頭筋レベル</div>
-            <div class="echo-image-placeholder">❤️ [傍胸骨左室短軸像]</div>
-            <div class="data-row"><div class="data-key">左室形態</div><div class="data-val">おおよそ円形，D-shapeなし</div></div>
-            <div class="data-row"><div class="data-key">右室</div><div class="data-val">拡大なし（D-shapeなし）</div></div>
-            <div class="data-row"><div class="data-key">心膜</div><div class="data-val">心膜液貯留なし</div></div>
-            <div class="comment-box">
-              <div class="comment-box-label">🎤 推奨コメント（声出し）</div>
-              <div class="comment-box-text">
-                「傍胸骨左室短軸像、乳頭筋レベルで描出しました。左室はおおよそ円形です。D-shapeなし、右室拡大なし。心膜液貯留なし。左室収縮は問題ありません。」
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- A4C -->
-        <div class="echo-panel" id="ep-a4c">
-          <div class="echo-result">
-            <div class="echo-result-header">心臓 — 心尖部四腔像（A4C）</div>
-            <div class="echo-image-placeholder">❤️ [心尖部四腔像]</div>
-            <div class="data-row"><div class="data-key">4腔</div><div class="data-val">左房・左室・右房・右室 確認</div></div>
-            <div class="data-row"><div class="data-key">RV：LV比</div><div class="data-val">約 1：2（正常範囲），右室拡大なし</div></div>
-            <div class="data-row"><div class="data-key">左室収縮</div><div class="data-val">壁運動良好，明らかな低下なし</div></div>
-            <div class="comment-box">
-              <div class="comment-box-label">🎤 推奨コメント（声出し）</div>
-              <div class="comment-box-text">
-                「心尖部四腔像を描出しました。4腔が確認できます。左室収縮は問題ありません。左右心室のバランス、右室対左室がおよそ1対2で正常範囲。心膜液なし。」
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- IVC -->
-        <div class="echo-panel" id="ep-ivc">
-          <div class="echo-result">
-            <div class="echo-result-header">心窩部IVC — 下大静脈</div>
-            <div class="echo-image-placeholder">〇 [心窩部IVC縦断像]</div>
-            <div class="data-row"><div class="data-key">IVC径</div><div class="data-val">約 16 mm（正常範囲）</div></div>
-            <div class="data-row"><div class="data-key">虚脱</div><div class="data-val">なし</div></div>
-            <div class="data-row"><div class="data-key">呼吸性変動</div><div class="data-val">あり（軽度）</div></div>
-            <div class="comment-box">
-              <div class="comment-box-label">🎤 推奨コメント（声出し）</div>
-              <div class="comment-box-text">
-                「心窩部縦走査でIVCを描出しました。IVC拡大なし、虚脱なし、呼吸性変動あり。現時点で著明な前負荷低下のサインはありません。」
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- FAST -->
-        <div class="echo-panel" id="ep-fast">
-          <div class="echo-result">
-            <div class="echo-result-header">FAST（外傷性腹腔内出血スクリーニング）</div>
-            <div class="echo-image-placeholder">🩸 [FAST 心窩部・モリソン窩・脾周囲]</div>
-            <div class="data-row"><div class="data-key">心窩部</div><div class="data-val">心膜液貯留なし</div></div>
-            <div class="data-row"><div class="data-key">右側腹部（モリソン窩）</div><div class="data-val">腹水なし，胸水なし</div></div>
-            <div class="data-row"><div class="data-key">左側腹部（脾周囲）</div><div class="data-val">腹水なし，胸水なし</div></div>
-            <div class="comment-box">
-              <div class="comment-box-label">🎤 推奨コメント（声出し）</div>
-              <div class="comment-box-text">
-                「FASTを行います。心窩部より心膜面を確認、心膜液なし。右側腹部、モリソン窩を描出、腹水なし。Curtain signを確認、胸水なし。左側腹部、脾周囲を描出、腹水なし。胸水なし。FASTは陰性です。」
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 腹部大動脈 -->
-        <div class="echo-panel" id="ep-aorta">
-          <div class="echo-result">
-            <div class="echo-result-header">腹部大動脈（横断像・スライド走査）</div>
-            <div class="echo-image-placeholder">🩺 [腹部大動脈横断像]</div>
-            <div class="data-row"><div class="data-key">大動脈径</div><div class="data-val">約 18 mm（正常 ＜30mm）</div></div>
-            <div class="data-row"><div class="data-key">大動脈瘤</div><div class="data-val">なし</div></div>
-            <div class="data-row"><div class="data-key">解離内膜</div><div class="data-val">なし</div></div>
-            <div class="comment-box">
-              <div class="comment-box-label">🎤 推奨コメント（声出し）</div>
-              <div class="comment-box-text">
-                「腹部大動脈を横断像で描出し、心窩部から総腸骨動脈分岐部まで連続的に走査しました。大動脈瘤なし、解離内膜なし。腹部大動脈に問題ありません。」
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 胆嚢 -->
-        <div class="echo-panel" id="ep-gb">
-          <div class="echo-result">
-            <div class="echo-result-header">胆嚢（右肋間・右肋骨弓下，扇動走査）</div>
-            <div class="echo-image-placeholder">🫗 [胆嚢長軸像]</div>
-            <div class="data-row"><div class="data-key">胆嚢腫大</div><div class="data-val">なし（＜40mm）</div></div>
-            <div class="data-row"><div class="data-key">壁肥厚</div><div class="data-val">なし（＜4mm）</div></div>
-            <div class="data-row"><div class="data-key">結石・デブリ</div><div class="data-val">なし</div></div>
-            <div class="comment-box">
-              <div class="comment-box-label">🎤 推奨コメント（声出し）</div>
-              <div class="comment-box-text">
-                「胆嚢を扇動走査で描出しました。胆嚢腫大なし、壁肥厚なし、結石なし。胆嚢炎を示唆する所見はありません。」
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 腎臓 -->
-        <div class="echo-panel" id="ep-kidney">
-          <div class="echo-result">
-            <div class="echo-result-header">腎臓（両側，中〜後腋窩線，扇動走査）</div>
-            <div class="echo-image-placeholder">🫘 [腎臓長軸像]</div>
-            <div class="data-row"><div class="data-key">右腎</div><div class="data-val">腎盂拡大なし（水腎症なし）</div></div>
-            <div class="data-row"><div class="data-key">左腎</div><div class="data-val">腎盂拡大なし（水腎症なし）</div></div>
-            <div class="comment-box">
-              <div class="comment-box-label">🎤 推奨コメント（声出し）</div>
-              <div class="comment-box-text">
-                「両側腎臓を扇動走査で確認しました。右腎、左腎ともに腎盂拡大なし。水腎症は認めません。」
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- DVT -->
-        <div class="echo-panel" id="ep-dvt">
-          <div class="echo-result">
-            <div class="echo-result-header">下肢深部静脈（2領域圧迫法）— 膝窩静脈</div>
-            <div class="echo-image-placeholder">🦵 [膝窩静脈 圧迫前後]</div>
-            <div class="data-row"><div class="data-key">体位</div><div class="data-val">仰臥位で膝を屈曲外旋</div></div>
-            <div class="data-row"><div class="data-key">膝窩静脈</div><div class="data-val">圧迫により完全に虚脱 → 血栓なし</div></div>
-            <div class="comment-box">
-              <div class="comment-box-label">🎤 推奨コメント（声出し）</div>
-              <div class="comment-box-text">
-                「膝窩静脈を短軸像で描出しました。圧迫走査を行います。膝窩静脈は完全に虚脱し、圧迫に対して反応しています。膝窩静脈に血栓なし。DVTは認めません。」
-              </div>
-            </div>
-            <div class="hint-box">
-              ※ 今回は膝窩静脈のみ確認（2領域圧迫法の②部位）
-            </div>
-          </div>
-        </div>
-
-        <!-- 膝（★KEY） -->
-        <div class="echo-panel" id="ep-knee">
-          <div class="echo-result">
-            <div class="echo-result-header">🔑 膝（膝蓋上嚢）— 長軸像・短軸像 ★ 今回の KEY エコー</div>
-            <div class="echo-image-placeholder">🦴 [膝蓋上嚢 長軸像 / 短軸像]</div>
-            <div class="data-row"><div class="data-key">膝蓋上嚢</div><div class="data-val"><strong style="color:var(--accent);">液体貯留あり（関節液増加）</strong> <span class="tag tag-red">陽性</span></div></div>
-            <div class="data-row"><div class="data-key">エコー所見</div><div class="data-val">無エコー〜低エコーの液体貯留。一部に高輝度の点状エコー（＝CPPD結晶を示唆）</div></div>
-            <div class="data-row"><div class="data-key">長軸像</div><div class="data-val">大腿四頭筋腱・膝蓋上嚢・大腿骨が確認できる</div></div>
-            <div class="data-row"><div class="data-key">短軸像</div><div class="data-val">液体の分布を確認</div></div>
-            <div class="finding-box">
-              <div class="finding-label">🎯 CRITICAL FINDING</div>
-              <strong>膝蓋上嚢に関節液貯留 ＋ 高輝度点状エコー → CPPD結晶沈着（偽痛風）を強く示唆！</strong><br>
-              →「膝が答えを持っている」。関節穿刺・偏光顕微鏡検査へ。
-            </div>
-            <div class="comment-box">
-              <div class="comment-box-label">🎤 推奨コメント（声出し）</div>
-              <div class="comment-box-text">
-                「右膝の膝蓋上嚢を長軸像・短軸像で描出します。大腿四頭筋腱、脂肪体、大腿骨が確認できます。<br>
-                <strong>膝蓋上嚢に液体貯留を認めます。</strong>一部に高輝度の点状エコーがあり、CPPD結晶の沈着が疑われます。関節穿刺の適応を検討します。」
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 肩 -->
-        <div class="echo-panel" id="ep-shoulder">
-          <div class="echo-result">
-            <div class="echo-result-header">肩（上腕二頭筋長頭腱）— 短軸像・長軸像</div>
-            <div class="echo-image-placeholder">💪 [結節間溝 長頭腱]</div>
-            <div class="data-row"><div class="data-key">体位</div><div class="data-val">手を膝の上に置いてもらう（内旋位）</div></div>
-            <div class="data-row"><div class="data-key">長頭腱</div><div class="data-val">腫大なし，断裂なし</div></div>
-            <div class="data-row"><div class="data-key">結節間溝</div><div class="data-val">異常なし</div></div>
-            <div class="comment-box">
-              <div class="comment-box-label">🎤 推奨コメント（声出し）</div>
-              <div class="comment-box-text">
-                「結節間溝の上腕二頭筋長頭腱を短軸像・長軸像で描出しました。長頭腱の腫大なし、断裂なし。肩関節に有意な異常所見はありません。」
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 甲状腺 -->
-        <div class="echo-panel" id="ep-thyroid">
-          <div class="echo-result">
-            <div class="echo-result-header">甲状腺（横断像）</div>
-            <div class="echo-image-placeholder">🔬 [甲状腺横断像]</div>
-            <div class="data-row"><div class="data-key">右葉・左葉</div><div class="data-val">腫瘤なし，嚢胞なし</div></div>
-            <div class="data-row"><div class="data-key">峡部</div><div class="data-val">異常なし</div></div>
-            <div class="comment-box">
-              <div class="comment-box-label">🎤 推奨コメント（声出し）</div>
-              <div class="comment-box-text">
-                「甲状腺を横断像で描出しました。右葉・峡部・左葉を確認できます。甲状腺腫瘤なし。有意な異常所見はありません。」
-              </div>
-            </div>
-          </div>
-        </div>
-
-      </div><!-- /card-body -->
-    </div><!-- /card -->
-
-    <!-- SCORE BUTTON (appears after echo) -->
-    <div id="scoreBtn-container" class="hidden" style="text-align:center; margin: 16px 0;">
-      <button class="btn btn-score" onclick="showSection('sec-scoring')">
-        📋 採点シートへ
-      </button>
-    </div>
-  </div>
-
-  <!-- === STEP 7: DIAGNOSIS === -->
-  <div id="sec-dx" class="hidden">
-    <div class="diagnosis-card">
-      <div class="diagnosis-title">確定診断</div>
-      <div style="font-size:20px; font-weight:700; color:var(--text); margin-bottom:6px;">
-        偽痛風（CPPD結晶沈着症）による急性関節炎<br>
-        <span style="font-size:14px; color:var(--text-sub);">± 発熱を伴う全身発症型（多関節病変の可能性）</span>
-      </div>
-      <div class="diagnosis-subtitle">Acute Calcium Pyrophosphate Deposition (CPPD) Arthritis</div>
-      <div class="key-point">💊 <strong>背景：</strong>利尿剤（チアジド系）→ 高尿酸血症 ＋ 過去の膝腫脹エピソード → CPPD素地あり</div>
-      <div class="key-point">🔑 <strong>エコーのKEY：</strong>膝蓋上嚢の液体貯留＋高輝度点状エコー → CPPD結晶沈着を示唆</div>
-      <div class="key-point">🩺 <strong>次のアクション：</strong>右膝関節穿刺 → 関節液偏光顕微鏡検査（CPPD結晶：正の複屈折 → ロンボイド形）</div>
-      <div class="key-point">💉 <strong>治療方針：</strong>NSAIDs or コルヒチン or ステロイド（関節内注射）± 冷却。感染性関節炎の除外が必須</div>
-      <div class="hint-box" style="margin-top:16px;">
-        <strong>💡 注意点：</strong>高齢女性で「どこが痛いか分からない」訴えの場合、<strong>「全体像を主訴に、局所の病変が隠れている」</strong>ことがある。丁寧な関節診察とPOCUSが診断の糸口になった症例。
-      </div>
-    </div>
-  </div>
-
-  <!-- === SCORING SHEET === -->
-  <div id="sec-scoring" class="hidden">
-    <div class="sep"></div>
-    <div class="card">
-      <div class="card-header">
-        <span class="card-icon">📋</span>
-        <span class="card-title">採点シート — Case 2 救急外来</span>
-        <span class="card-badge">20点満点</span>
-      </div>
-      <div class="card-body">
-        <p style="font-size:12px; color:var(--text-sub); margin-bottom:14px;">
-          資料1「作問フォーマット（雛形）」準拠。各項目は作問者の裁量で一部変更されます。
-        </p>
-        <table class="score-table">
-          <thead>
-            <tr>
-              <th style="width:36px;">No.</th>
-              <th>評価項目</th>
-              <th>評価内容・基準</th>
-              <th style="width:60px; text-align:center;">配点</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="score-no">1</td>
-              <td><strong>患者対応・態度</strong>（必須）</td>
-              <td>患者・家族への丁寧な言葉かけ、安心感のある態度、痛みへの配慮</td>
-              <td class="score-pts">2〜3</td>
-            </tr>
-            <tr>
-              <td class="score-no">2</td>
-              <td><strong>問診・身体所見</strong></td>
-              <td>バイタル確認・主訴深掘り・OPQRST/AMPLE・関節診察（右膝圧痛の同定）</td>
-              <td class="score-pts">1〜3</td>
-            </tr>
-            <tr>
-              <td class="score-no">3</td>
-              <td><strong>プローブ選択・プリセット設定</strong></td>
-              <td>肺：リニア、心臓：セクタ（フェーズドアレイ）、腹部：コンベックス など適切なプローブ・プリセット選択</td>
-              <td class="score-pts">1〜2</td>
-            </tr>
-            <tr>
-              <td class="score-no">4</td>
-              <td><strong>エコー手技</strong></td>
-              <td>所定部位（肺・心臓・FAST・腹部大動脈・胆嚢・腎臓・DVT・膝・肩・甲状腺）の描出と異常所見確認。<br>
-                  <span style="color:var(--accent); font-weight:700;">★膝蓋上嚢の液体貯留＋高輝度点状エコーを描出・コメントできるか</span></td>
-              <td class="score-pts">3〜5</td>
-            </tr>
-            <tr>
-              <td class="score-no">5</td>
-              <td><strong>診断・判断</strong></td>
-              <td>所見から偽痛風（CPPD）を挙げ、感染性関節炎との鑑別を考慮。関節穿刺の必要性を判断</td>
-              <td class="score-pts">1〜3</td>
-            </tr>
-            <tr>
-              <td class="score-no">6</td>
-              <td><strong>治療方針</strong></td>
-              <td>関節穿刺（診断・治療兼用）、NSAIDs/コルヒチン/ステロイドの選択根拠、敗血症除外の方針</td>
-              <td class="score-pts">1〜2</td>
-            </tr>
-            <tr>
-              <td class="score-no">7</td>
-              <td><strong>説明</strong></td>
-              <td>患者・家族へ病状説明（偽痛風・関節穿刺の必要性・今後の治療）を分かりやすく行う</td>
-              <td class="score-pts">1〜2</td>
-            </tr>
-            <tr>
-              <td class="score-no">8</td>
-              <td><strong>チームワーク</strong></td>
-              <td>指示・役割分担・連携の適切さ（チームへの声かけ、記録係への指示など）</td>
-              <td class="score-pts">1〜2</td>
-            </tr>
-            <tr>
-              <td class="score-no">9</td>
-              <td><strong>自由項目</strong></td>
-              <td>安全確認（転倒リスク高齢者への配慮）、感染対策（関節穿刺の清潔操作）、チーム内声かけ</td>
-              <td class="score-pts">1〜2</td>
-            </tr>
-            <tr class="score-total">
-              <td colspan="3" style="text-align:right; padding-right:16px; font-size:13px;">合計（固定）</td>
-              <td style="text-align:center; font-family:'Bebas Neue',sans-serif; font-size:26px; color:var(--ok);">20点</td>
-            </tr>
-          </tbody>
-        </table>
-
-        <div style="margin-top:18px; background:rgba(224,92,58,.07); border:1px solid rgba(224,92,58,.2); border-radius:6px; padding:14px;">
-          <div style="font-size:11px; color:var(--accent); font-weight:700; letter-spacing:1px; text-transform:uppercase; margin-bottom:8px;">⚠ 減点条件（例）</div>
-          <div style="font-size:12px; color:var(--text-sub); line-height:2;">
-            ・エコー部位誤り：−2点<br>
-            ・不適切な処置（抗菌薬の先行投与で関節穿刺が遅れるなど）：−1点<br>
-            ・感染性関節炎の鑑別を挙げない：−1点<br>
-            ・膝エコーで液体貯留を見落とす・コメントなし：−1〜2点
-          </div>
-        </div>
-
-        <div style="margin-top:14px; background:rgba(61,214,140,.07); border:1px solid rgba(61,214,140,.2); border-radius:6px; padding:14px;">
-          <div style="font-size:11px; color:var(--ok); font-weight:700; letter-spacing:1px; text-transform:uppercase; margin-bottom:8px;">⭐ 加点条件（例）</div>
-          <div style="font-size:12px; color:var(--text-sub); line-height:2;">
-            ・「膝が答えを持っている」と的確に判断し関節穿刺を提案：+1点<br>
-            ・エコーコメントを声に出して正確に行う（声出しの質が高い）：+1点<br>
-            ・チームメンバーへの適切な指示と記録が取れている：+1点
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ============================================================
-       CONTROL BUTTONS
-  ============================================================ -->
-  <div class="btn-row" id="controlBtns">
-    <button class="btn btn-primary" id="btn-vital" onclick="showSection('sec-vital'); markFlow('flow-vital'); updateProgress(28);">
-      📊 バイタルを確認
-    </button>
-    <button class="btn btn-secondary hidden" id="btn-abcde" onclick="showSection('sec-abcde'); updateProgress(35);">
-      🔍 ABCDE評価
-    </button>
-    <button class="btn btn-secondary hidden" id="btn-opqrst" onclick="showSection('sec-opqrst'); markFlow('flow-hx'); updateProgress(42);">
-      💬 OPQRST問診
-    </button>
-    <button class="btn btn-secondary hidden" id="btn-ample" onclick="showSection('sec-ample'); updateProgress(50);">
-      📋 AMPLE問診
-    </button>
-    <button class="btn btn-secondary hidden" id="btn-pe" onclick="showSection('sec-pe'); markFlow('flow-pe'); updateProgress(57);">
-      🩺 身体所見
-    </button>
-    <button class="btn btn-secondary hidden" id="btn-lab" onclick="showSection('sec-lab'); markFlow('flow-lab'); updateProgress(64);">
-      🧪 採血結果
-    </button>
-    <button class="btn btn-echo hidden" id="btn-echo" onclick="showEchoSection(); markFlow('flow-echo'); updateProgress(78);">
-      🔊 POCUSを開始
-    </button>
-    <button class="btn btn-primary hidden" id="btn-dx" onclick="showSection('sec-dx'); markFlow('flow-dx'); showScoringBtn(); updateProgress(100);">
-      💡 診断を確認
-    </button>
-  </div>
-
-</div><!-- /#app -->
-
 <script>
-  // State
-  const shownSections = new Set();
-  const echoDone = new Set();
-  const allEchos = ['lung','plax','psax','a4c','ivc','fast','aorta','gb','kidney','dvt','knee','shoulder','thyroid'];
+// ══════════════════════════════════════════════
+// CASE DATABASE
+// ══════════════════════════════════════════════
+const CASES = [
+  {
+    id: 2,
+    setting: '救急外来',
+    chief: '発熱・体が痛くて動けない',
+    subtitle: '78歳 女性',
+    badge: 'CASE 02',
+    hiddenDx: '偽痛風（CPPD結晶沈着症）による急性関節炎',
 
-  // Section reveal
-  function showSection(id) {
-    const el = document.getElementById(id);
-    if (el) {
-      el.classList.remove('hidden');
-      setTimeout(() => el.scrollIntoView({ behavior:'smooth', block:'start' }), 100);
+    initial: [
+      { key:'セッティング', val:'救急外来' },
+      { key:'患者', val:'78歳 女性' },
+      { key:'主訴', val:'発熱・体が痛くて動けない（2日間）' },
+      { key:'来院状況', val:'2日前から発熱と全身倦怠感が続いている。本日朝「体が痛くて全然動けない」と訴え、家族が救急要請。意識は清明だが顔色不良。歩行不能で担架搬送。' },
+    ],
+
+    blocks: {
+      vital: {
+        label: '🫀 バイタルサイン',
+        phase: 1,
+        content: `
+          <table class="val-table">
+            <tr><td>血圧</td><td><span class="caution">112/64 mmHg（やや低め）</span></td></tr>
+            <tr><td>脈拍</td><td><span class="warn">110 bpm ⚠ 頻脈</span></td></tr>
+            <tr><td>体温</td><td><span class="warn">38.8 ℃ ⚠ 発熱</span></td></tr>
+            <tr><td>SpO₂</td><td><span class="ok">96%（室内気）</span></td></tr>
+            <tr><td>呼吸数</td><td><span class="caution">20 回/分</span></td></tr>
+            <tr><td>意識</td><td><span class="ok">清明（GCS 15）</span></td></tr>
+          </table>
+          <p style="margin-top:10px;" class="caution">⚠ 発熱＋頻脈＋やや低め血圧 → 敗血症を念頭に置いてフォーカス検索。</p>`
+      },
+
+      abcde: {
+        label: '🚨 ABCDE評価',
+        phase: 1,
+        content: `
+          <strong>ABCDE一次評価</strong>
+          <table class="val-table" style="margin-top:10px;">
+            <tr>
+              <td><strong>A｜気道</strong></td>
+              <td><span class="ok">開通あり。発語可能、舌根沈下なし。</span></td>
+            </tr>
+            <tr>
+              <td><strong>B｜呼吸</strong></td>
+              <td>
+                呼吸数 <span class="caution">20回/分（やや増加）</span><br>
+                SpO₂ <span class="ok">96%（室内気）</span><br>
+                呼吸補助筋の使用 <span class="ok">なし</span>
+              </td>
+            </tr>
+            <tr>
+              <td><strong>C｜循環</strong></td>
+              <td>
+                血圧 <span class="caution">112/64 mmHg</span><br>
+                心拍数 <span class="warn">110 bpm ⚠ 頻脈</span><br>
+                皮膚：やや湿潤・温感あり、末梢冷感なし
+              </td>
+            </tr>
+            <tr>
+              <td><strong>D｜意識</strong></td>
+              <td>
+                意識レベル <span class="ok">清明（GCS E4V5M6 = 15）</span><br>
+                血糖 <span class="ok">118 mg/dL</span><br>
+                瞳孔 <span class="ok">両側 3mm・同大・正円</span>
+              </td>
+            </tr>
+            <tr>
+              <td><strong>E｜体温・環境</strong></td>
+              <td>
+                体温 <span class="warn">38.8℃（発熱）</span><br>
+                皮疹 <span class="ok">なし</span><br>
+                外傷 <span class="ok">なし</span><br>
+                関節腫脹の評価は詳細な身体所見で確認
+              </td>
+            </tr>
+          </table>`
+      },
+
+      opqrst: {
+        label: '📋 OPQRST（痛みの問診）',
+        phase: 1,
+        content: `
+          <strong>OPQRST — 主訴「体が痛い」の詳細</strong>
+          <table class="val-table" style="margin-top:10px;">
+            <tr>
+              <td><strong>O｜Onset 発症</strong></td>
+              <td>2日前から徐々に。特定のきっかけなし。</td>
+            </tr>
+            <tr>
+              <td><strong>P｜増悪・寛解因子</strong></td>
+              <td>動かすと全身が痛い。安静でやや楽。市販の解熱剤は少し効いた。</td>
+            </tr>
+            <tr>
+              <td><strong>Q｜Quality 性状</strong></td>
+              <td><span class="caution">「体がズキズキ痛い」「特にどこか一か所とは言えない」→ びまん性。</span></td>
+            </tr>
+            <tr>
+              <td><strong>R｜Region 部位・放散</strong></td>
+              <td>
+                「全部痛い」と訴えるが、具体的な関節を指摘させると…<br>
+                <span class="warn">⚠ 右膝を押すと特に痛がる</span>
+              </td>
+            </tr>
+            <tr>
+              <td><strong>S｜Severity 強さ</strong></td>
+              <td>NRS <span class="caution">6/10</span></td>
+            </tr>
+            <tr>
+              <td><strong>T｜Time 時間経過</strong></td>
+              <td>2日間持続、徐々に増悪傾向。頭痛・腹痛・呼吸器症状・排尿時痛なし。</td>
+            </tr>
+          </table>
+          <p class="warn" style="margin-top:10px;">⚠ フォーカス不明の発熱。全身がびまん性に痛いと言うが、詳細に聞くと右膝に圧痛あり。関節炎を念頭に置く。</p>`
+      },
+
+      ample: {
+        label: '📁 AMPLE history',
+        phase: 1,
+        content: `
+          <strong>AMPLE history</strong>
+          <table class="val-table" style="margin-top:10px;">
+            <tr>
+              <td><strong>A｜Allergy アレルギー</strong></td>
+              <td><span class="ok">なし</span></td>
+            </tr>
+            <tr>
+              <td><strong>M｜Medication 内服薬</strong></td>
+              <td>
+                アムロジピン（高血圧）<br>
+                アレンドロン酸（骨粗鬆症）<br>
+                <span class="caution">チアジド系利尿剤（高血圧） ← 高尿酸血症リスク</span>
+              </td>
+            </tr>
+            <tr>
+              <td><strong>P｜Past Hx 既往歴</strong></td>
+              <td>高血圧、骨粗鬆症、変形性膝関節症（数年前に診断）</td>
+            </tr>
+            <tr>
+              <td><strong>L｜Last meal 最終食事</strong></td>
+              <td>昨日の朝食（食欲なく以降はほぼ絶食）</td>
+            </tr>
+            <tr>
+              <td><strong>E｜Event / Environment</strong></td>
+              <td><span class="caution">3か月前に「急に膝が腫れた」と整形外科を受診したことあり（詳細不明） → CPPD素地あり</span></td>
+            </tr>
+          </table>
+          <p class="caution" style="margin-top:10px;">💡 チアジド系利尿剤→高尿酸血症リスク。3か月前の膝腫脹のエピソード。偽痛風（CPPD）または痛風を示唆。</p>`
+      },
+
+      physical: {
+        label: '🩺 身体所見',
+        phase: 2,
+        content: `
+          <table class="val-table">
+            <tr><td>頭頸部</td><td>頸部：動かすと痛がる（評価困難）。厳密な項部硬直はなし。<span class="caution">要注意。</span></td></tr>
+            <tr><td>胸部</td><td><span class="ok">肺音清明、心音整・雑音なし</span></td></tr>
+            <tr><td>腹部</td><td><span class="ok">平坦・軟、圧痛なし、腸音正常</span></td></tr>
+            <tr><td>四肢・関節</td><td><span class="warn">⚠ 右膝関節：軽度腫脹・熱感・圧痛 陽性<br>その他関節：明らかな腫脹なし（全体的に痛がる）</span></td></tr>
+            <tr><td>皮膚・リンパ</td><td><span class="ok">皮疹なし、リンパ節腫脹なし、発赤・皮膚欠損なし</span></td></tr>
+            <tr><td>神経学的所見</td><td><span class="ok">上下肢筋力保たれる、感覚障害なし、深部腱反射正常</span></td></tr>
+          </table>
+          <p class="warn" style="margin-top:10px;">⚠ 「どこが痛いか分からない」高齢女性 → 詳細な身体診察で右膝関節炎を同定。発熱＋関節炎 → 感染性関節炎 vs 結晶誘発性関節炎（偽痛風・痛風）の鑑別が急務。</p>`
+      },
+
+      lab: {
+        label: '🧪 採血・血液検査',
+        phase: 2,
+        content: `
+          <table class="val-table">
+            <tr><td>WBC</td><td><span class="caution">13,800 /μL ↑</span></td></tr>
+            <tr><td>CRP</td><td><span class="warn">12.4 mg/dL ⚠ 大幅上昇</span></td></tr>
+            <tr><td>PCT</td><td><span class="caution">0.8 ng/mL（境界）※敗血症閾値2未満</span></td></tr>
+            <tr><td>UA（尿酸）</td><td><span class="caution">8.2 mg/dL ↑</span></td></tr>
+            <tr><td>Hb</td><td><span class="caution">11.2 g/dL（軽度低値）</span></td></tr>
+            <tr><td>Cr / BUN</td><td>1.1 / 24 mg/dL</td></tr>
+            <tr><td>Lac</td><td><span class="ok">1.8 mmol/L（正常範囲）</span></td></tr>
+            <tr><td>血液培養</td><td>採取（2セット）→ 結果待ち</td></tr>
+          </table>
+          <p class="caution" style="margin-top:10px;">💡 PCT 0.8 → 敗血症の閾値（>2）に達しない。CRP大幅上昇だが、結晶性関節炎でも高値になる。次のステップ：右膝関節エコー ＋ 関節液穿刺が重要。</p>`
+      },
+
+      echo_lung: {
+        label: '🫁 肺エコー（リニア）',
+        phase: 3,
+        echoComment: true,
+        content: `
+          <strong>プローブ：リニア　部位：両肺 前胸部上部 + 側胸部下部（各4か所）</strong>
+          <table class="val-table" style="margin-top:10px;">
+            <tr><td>右前胸部上部</td><td><span class="ok">バッドサイン描出可　Lung sliding あり　Bライン なし　胸水 なし</span></td></tr>
+            <tr><td>右側胸部下部</td><td><span class="ok">Curtain sign あり　Lung sliding あり　胸水 なし</span></td></tr>
+            <tr><td>左前胸部上部</td><td><span class="ok">Lung sliding あり　Bライン なし　胸水 なし</span></td></tr>
+            <tr><td>左側胸部下部</td><td><span class="ok">Curtain sign あり　Lung sliding あり　胸水 なし</span></td></tr>
+          </table>
+          <div style="margin-top:12px; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; padding:10px 12px; font-size:12px; color:#166534;">
+            📣 <strong>推奨コメント：</strong>「右前胸部を確認します。バッドサインを確認しました。Lung slidingあり、Bラインなし、胸水なし。続いて側胸部下部、Curtain signあり、胸水なし。左側も同様に確認しました。両肺とも問題ありません。」
+          </div>`
+      },
+
+      echo_plax: {
+        label: '❤️ 心臓：傍胸骨長軸（PLAX）',
+        phase: 3,
+        echoComment: true,
+        content: `
+          <strong>プローブ：セクタ　描出：左房・左室・大動脈弁が見え、左室壁運動を確認</strong>
+          <table class="val-table" style="margin-top:10px;">
+            <tr><td>心膜液</td><td><span class="ok">なし</span></td></tr>
+            <tr><td>左室収縮能</td><td><span class="ok">問題なし（壁運動良好）</span></td></tr>
+            <tr><td>左室拡大</td><td><span class="ok">なし（目安：拡張末期径 &lt;55mm）</span></td></tr>
+            <tr><td>大動脈弁・僧帽弁</td><td>明らかな弁膜症なし</td></tr>
+          </table>
+          <div style="margin-top:12px; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; padding:10px 12px; font-size:12px; color:#166534;">
+            📣 <strong>推奨コメント：</strong>「傍胸骨左室長軸像を描出しました。左房・左室・大動脈弁が見えています。左室収縮は問題ありません。左室拡大なし、心膜液貯留なし。」
+          </div>`
+      },
+
+      echo_psax: {
+        label: '❤️ 心臓：傍胸骨短軸（PSAX）',
+        phase: 3,
+        echoComment: true,
+        content: `
+          <strong>プローブ：セクタ　描出：乳頭筋レベルで円形断面を確認</strong>
+          <table class="val-table" style="margin-top:10px;">
+            <tr><td>心膜液</td><td><span class="ok">なし</span></td></tr>
+            <tr><td>左室収縮能</td><td><span class="ok">問題なし</span></td></tr>
+            <tr><td>D-shape（右室拡大）</td><td><span class="ok">なし → 肺塞栓による右室負荷は否定的</span></td></tr>
+          </table>
+          <div style="margin-top:12px; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; padding:10px 12px; font-size:12px; color:#166534;">
+            📣 <strong>推奨コメント：</strong>「傍胸骨左室短軸像（乳頭筋レベル）を確認しました。心膜液なし、左室収縮問題なし、D-shapeなし（右室拡大なし）。」
+          </div>`
+      },
+
+      echo_a4c: {
+        label: '❤️ 心臓：心尖部四腔像（A4C）',
+        phase: 3,
+        echoComment: true,
+        content: `
+          <strong>プローブ：セクタ　描出：斜め切りでも4腔が見えればOK</strong>
+          <table class="val-table" style="margin-top:10px;">
+            <tr><td>心膜液</td><td><span class="ok">なし</span></td></tr>
+            <tr><td>左室収縮能</td><td><span class="ok">問題なし</span></td></tr>
+            <tr><td>左右心室バランス</td><td><span class="ok">正常（右室：左室 ≈ 1:2）</span></td></tr>
+          </table>
+          <div style="margin-top:12px; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; padding:10px 12px; font-size:12px; color:#166534;">
+            📣 <strong>推奨コメント：</strong>「心尖部四腔像を確認しました。心膜液なし、左室収縮問題なし、左右心室のバランス問題なし（右室:左室=1:2）。」
+          </div>`
+      },
+
+      echo_ivc: {
+        label: '❤️ IVC（心窩部縦断）',
+        phase: 3,
+        echoComment: true,
+        content: `
+          <strong>プローブ：コンベックス or セクタ　描出：心窩部縦操作でIVCが見える</strong>
+          <table class="val-table" style="margin-top:10px;">
+            <tr><td>IVC径</td><td><span class="ok">約1.5cm（正常範囲）</span></td></tr>
+            <tr><td>呼吸性変動</td><td><span class="ok">あり（正常）</span></td></tr>
+            <tr><td>IVC拡大・虚脱</td><td><span class="ok">なし</span></td></tr>
+          </table>
+          <div style="margin-top:12px; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; padding:10px 12px; font-size:12px; color:#166534;">
+            📣 <strong>推奨コメント：</strong>「IVC拡大なし、呼吸性変動あり。血管内容量の著明な低下は認めません。」
+          </div>`
+      },
+
+      echo_fast: {
+        label: '🏥 FAST（腹部＋心窩部）',
+        phase: 3,
+        echoComment: true,
+        content: `
+          <strong>プローブ：コンベックス　扇動走査</strong>
+          <table class="val-table" style="margin-top:10px;">
+            <tr><td>①心窩部（心嚢）</td><td><span class="ok">心膜液貯留なし</span></td></tr>
+            <tr><td>②右側腹部（モリソン窩）</td><td><span class="ok">腹水なし</span></td></tr>
+            <tr><td>②右胸水</td><td><span class="ok">なし（Curtain sign確認）</span></td></tr>
+            <tr><td>③左側腹部（脾周囲）</td><td><span class="ok">腹水なし</span></td></tr>
+            <tr><td>③左胸水</td><td><span class="ok">なし</span></td></tr>
+          </table>
+          <div style="margin-top:12px; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; padding:10px 12px; font-size:12px; color:#166534;">
+            📣 <strong>推奨コメント：</strong>「心窩部より心膜面を確認、心膜液なし。モリソン窩を描出、腹水なし。Curtain signを確認、胸水なし。脾周囲も確認、腹水なし。FASTは陰性です。」
+          </div>`
+      },
+
+      echo_aorta: {
+        label: '🔊 腹部大動脈エコー',
+        phase: 3,
+        echoComment: true,
+        content: `
+          <strong>プローブ：コンベックス　描出：横断像で心窩部〜総腸骨動脈分岐部まで連続スキャン</strong>
+          <table class="val-table" style="margin-top:10px;">
+            <tr><td>大動脈径（最大）</td><td><span class="ok">約18mm（正常 &lt;30mm）</span></td></tr>
+            <tr><td>大動脈瘤</td><td><span class="ok">なし</span></td></tr>
+            <tr><td>解離内膜</td><td><span class="ok">なし</span></td></tr>
+          </table>
+          <div style="margin-top:12px; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; padding:10px 12px; font-size:12px; color:#166534;">
+            📣 <strong>推奨コメント：</strong>「腹部大動脈を横断像で心窩部から総腸骨動脈分岐部まで連続的に走査しました。大動脈瘤なし、解離内膜なし。腹部大動脈に問題ありません。」
+          </div>`
+      },
+
+      echo_gallbladder: {
+        label: '胆嚢エコー',
+        phase: 3,
+        echoComment: true,
+        content: `
+          <strong>プローブ：コンベックス　右肋間〜右肋骨弓下、扇動走査</strong>
+          <table class="val-table" style="margin-top:10px;">
+            <tr><td>胆嚢腫大</td><td><span class="ok">なし（&lt;40mm）</span></td></tr>
+            <tr><td>壁肥厚</td><td><span class="ok">なし（&lt;4mm）</span></td></tr>
+            <tr><td>結石・デブリエコー</td><td><span class="ok">なし</span></td></tr>
+            <tr><td>Murphy sign（echo）</td><td>陰性</td></tr>
+          </table>
+          <div style="margin-top:12px; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; padding:10px 12px; font-size:12px; color:#166534;">
+            📣 <strong>推奨コメント：</strong>「胆嚢を扇動走査で描出しました。胆嚢腫大なし、壁肥厚なし、結石なし。胆嚢炎を示唆する所見はありません。」
+          </div>`
+      },
+
+      echo_kidney: {
+        label: '腎臓エコー',
+        phase: 3,
+        echoComment: true,
+        content: `
+          <strong>プローブ：コンベックス　中〜後腋窩線・腎臓長軸にあわせて扇動走査</strong>
+          <table class="val-table" style="margin-top:10px;">
+            <tr><td>右腎</td><td><span class="ok">腎盂拡大なし（水腎症なし）</span></td></tr>
+            <tr><td>左腎</td><td><span class="ok">腎盂拡大なし（水腎症なし）</span></td></tr>
+            <tr><td>腎周囲液体</td><td><span class="ok">なし</span></td></tr>
+          </table>
+          <div style="margin-top:12px; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; padding:10px 12px; font-size:12px; color:#166534;">
+            📣 <strong>推奨コメント：</strong>「両側腎臓を扇動走査で確認しました。右腎、左腎ともに腎盂拡大なし。水腎症・尿路閉塞は否定的です。」
+          </div>`
+      },
+
+      echo_dvt: {
+        label: '下肢深部静脈（DVT）',
+        phase: 3,
+        echoComment: true,
+        content: `
+          <strong>プローブ：リニア　2領域圧迫法（膝窩静脈）　仰臥位で膝を屈曲外旋</strong>
+          <table class="val-table" style="margin-top:10px;">
+            <tr><td>膝窩静脈（右）</td><td><span class="ok">圧迫により完全に虚脱 → 血栓なし</span></td></tr>
+            <tr><td>膝窩静脈（左）</td><td><span class="ok">圧迫により完全に虚脱 → 血栓なし</span></td></tr>
+          </table>
+          <div style="margin-top:12px; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; padding:10px 12px; font-size:12px; color:#166534;">
+            📣 <strong>推奨コメント：</strong>「膝窩静脈を短軸像で描出しました。圧迫走査を行います。膝窩静脈は完全に虚脱しています。血栓なし、DVTは認めません。」
+          </div>`
+      },
+
+      echo_knee: {
+        label: '膝（膝蓋上嚢）',
+        phase: 3,
+        echoComment: true,
+        content: `
+          <strong>プローブ：リニア　長軸像・短軸像で膝蓋上嚢を描出</strong>
+          <table class="val-table" style="margin-top:10px;">
+            <tr><td>膝蓋上嚢（右）</td><td><span class="warn">⚠ 液体貯留あり（関節液増加）</span></td></tr>
+            <tr><td>エコー所見</td><td><span class="warn">⚠ 無エコー〜低エコーの液体貯留。一部に高輝度の点状エコー（CPPD結晶を強く示唆）</span></td></tr>
+            <tr><td>長軸像</td><td>大腿四頭筋腱・膝蓋上嚢・大腿骨が確認できる</td></tr>
+            <tr><td>膝蓋上嚢（左）</td><td><span class="ok">貯留液なし</span></td></tr>
+          </table>
+          <p class="warn" style="margin-top:8px;">⚠ 右膝蓋上嚢に関節液貯留＋高輝度点状エコー → CPPD結晶沈着（偽痛風）を強く示唆！「膝が答えを持っている」。関節穿刺→偏光顕微鏡検査へ。</p>
+          <div style="margin-top:12px; background:#fef2f2; border:1px solid #fecaca; border-radius:8px; padding:10px 12px; font-size:12px; color:#991b1b;">
+            📣 <strong>推奨コメント：</strong>「右膝の膝蓋上嚢を長軸像・短軸像で描出します。大腿四頭筋腱、脂肪体、大腿骨が確認できます。膝蓋上嚢に液体貯留を認めます。一部に高輝度の点状エコーがあり、CPPD結晶の沈着が疑われます。関節穿刺の適応を検討します。」
+          </div>`
+      },
+
+      echo_shoulder: {
+        label: '肩（上腕二頭筋長頭腱）',
+        phase: 3,
+        echoComment: true,
+        content: `
+          <strong>プローブ：リニア　手を膝の上→ 結節間溝を短軸・長軸で描出</strong>
+          <table class="val-table" style="margin-top:10px;">
+            <tr><td>長頭腱（右）</td><td><span class="ok">腫大なし、断裂なし</span></td></tr>
+            <tr><td>長頭腱（左）</td><td><span class="ok">腫大なし、断裂なし</span></td></tr>
+            <tr><td>結節間溝</td><td>異常なし</td></tr>
+          </table>
+          <div style="margin-top:12px; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; padding:10px 12px; font-size:12px; color:#166534;">
+            📣 <strong>推奨コメント：</strong>「結節間溝の上腕二頭筋長頭腱を短軸像・長軸像で描出しました。長頭腱の腫大なし、断裂なし。肩関節に有意な異常所見はありません。」
+          </div>`
+      },
+
+      echo_thyroid: {
+        label: '甲状腺エコー',
+        phase: 3,
+        echoComment: true,
+        content: `
+          <strong>プローブ：リニア　横断像で描出</strong>
+          <table class="val-table" style="margin-top:10px;">
+            <tr><td>右葉・峡部・左葉</td><td><span class="ok">腫瘤なし、嚢胞なし</span></td></tr>
+            <tr><td>内部エコー</td><td>均質</td></tr>
+          </table>
+          <div style="margin-top:12px; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; padding:10px 12px; font-size:12px; color:#166534;">
+            📣 <strong>推奨コメント：</strong>「甲状腺を横断像で描出しました。右葉・峡部・左葉を確認できます。甲状腺腫瘤なし。有意な異常所見はありません。（腫大・萎縮の評価は今回求めません）」
+          </div>`
+      },
+
+      dx: {
+        label: '🎯 鑑別診断を整理する',
+        phase: 4,
+        content: `
+          <strong style="color:var(--red);">確定診断：偽痛風（CPPD結晶沈着症）による急性関節炎</strong>
+          <p style="margin-top:8px; color:var(--ink2); font-size:13px;">
+            ・発熱 + 右膝関節炎（腫脹・熱感・圧痛）<br>
+            ・チアジド系利尿剤 → 高尿酸血症 + 3か月前の膝腫脹エピソード → CPPD素地あり<br>
+            ・膝蓋上嚢エコー：液体貯留 + 高輝度点状エコー → CPPD結晶沈着を示唆<br>
+            ・CRP大幅上昇、PCT 0.8（敗血症閾値未達）<br>
+            → 右膝関節穿刺 → 関節液偏光顕微鏡検査（CPPD結晶：正の複屈折 → ロンボイド形）
+          </p>
+          <p style="margin-top:10px; font-size:12px; color:var(--ink3);">
+            <strong>治療方針：</strong>NSAIDs or コルヒチン or ステロイド（関節内注射）± 冷却。感染性関節炎の除外が必須。<br><br>
+            <strong>除外できた鑑別：</strong><br>
+            感染性関節炎（穿刺で確認） / 肺炎 / 胆嚢炎 / 腎盂腎炎 / 腹部大動脈瘤 / DVT / 肺塞栓
+          </p>
+          <p style="margin-top:10px; font-size:12px; color:var(--amber);">
+            💡 注意点：高齢女性で「どこが痛いか分からない」訴えの場合、「全体像を主訴に、局所の病変が隠れている」ことがある。丁寧な関節診察とPOCUSが診断の糸口になった症例。
+          </p>`
+      },
+    },
+
+    scoreItems: [
+      { item:'患者対応・態度', criteria:'患者・家族への丁寧な言葉かけ、安心感のある態度、痛みへの配慮', max:3 },
+      { item:'問診・身体所見', criteria:'バイタル確認・主訴深掘り・OPQRST/AMPLE・関節診察（右膝圧痛の同定）', max:3 },
+      { item:'プローブ選択・プリセット', criteria:'肺：リニア、心臓：セクタ、腹部：コンベックス、膝：リニア など適切なプローブ選択', max:2 },
+      { item:'エコー手技（膝蓋上嚢）', criteria:'右膝蓋上嚢の液体貯留＋高輝度点状エコーを描出・コメントできるか。長軸・短軸両方で確認。', max:5 },
+      { item:'エコーコメント（声出し）', criteria:'各部位の所見を声に出してコメント。膝は「液体貯留あり・点状高輝度エコー・CPPD示唆」を言及。', max:2 },
+      { item:'診断・判断', criteria:'偽痛風（CPPD）を挙げ、感染性関節炎との鑑別を考慮。関節穿刺の必要性を判断。', max:2 },
+      { item:'治療方針', criteria:'関節穿刺（診断・治療兼用）、NSAIDs/コルヒチン/ステロイドの選択根拠、感染除外の方針', max:2 },
+      { item:'説明', criteria:'患者・家族へ病状説明（偽痛風・関節穿刺の必要性・今後の治療）を分かりやすく行う', max:1 },
+    ]
+  }
+];
+
+// ══════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════
+let currentCase = null;
+let revealedBlocks = new Set();
+
+// ══════════════════════════════════════════════
+// OPEN CASE
+// ══════════════════════════════════════════════
+function openCase(idx) {
+  currentCase = CASES[idx];
+  revealedBlocks = new Set();
+
+  // header
+  document.getElementById('caseSettingTag').textContent = currentCase.setting;
+  document.getElementById('caseTitleMain').textContent = currentCase.chief;
+  document.getElementById('caseSubtitle').textContent = currentCase.subtitle;
+  document.getElementById('caseBadge').textContent = currentCase.badge;
+
+  // initial info
+  const ii = document.getElementById('initialInfo');
+  ii.innerHTML = currentCase.initial.map(r =>
+    `<div class="info-row"><span class="info-key">${r.key}</span><span class="info-val">${r.val}</span></div>`
+  ).join('');
+
+  // action grid
+  buildActionGrid();
+
+  // clear log
+  document.getElementById('responseLog').innerHTML = '';
+  document.getElementById('freeqInput').value = '';
+  document.getElementById('finishBtn').classList.remove('visible');
+  document.getElementById('scoreSheet').classList.remove('visible');
+
+  // phase bar
+  updatePhaseBar(0);
+}
+
+function buildActionGrid() {
+  const grid = document.getElementById('actionGrid');
+  grid.innerHTML = '';
+  const blocks = currentCase.blocks;
+
+  Object.keys(blocks).forEach(key => {
+    const b = blocks[key];
+    const btn = document.createElement('button');
+    btn.className = 'act-btn';
+    btn.id = 'btn_' + key;
+    btn.textContent = b.label;
+    btn.onclick = () => revealBlock(key);
+    grid.appendChild(btn);
+  });
+}
+
+// ══════════════════════════════════════════════
+// REVEAL BLOCK
+// ══════════════════════════════════════════════
+function revealBlock(key) {
+  const block = currentCase.blocks[key];
+  if (!block) return;
+
+  const btn = document.getElementById('btn_' + key);
+  if (btn) btn.classList.add('revealed');
+
+  revealedBlocks.add(key);
+
+  addLogEntry(block.label, block.content, block.echoComment);
+  updatePhaseBar(block.phase);
+  checkFinishVisible();
+}
+
+function addLogEntry(label, content, isEcho) {
+  const log = document.getElementById('responseLog');
+  const entry = document.createElement('div');
+  entry.className = 'log-entry';
+  entry.innerHTML = `
+    <div class="log-entry-head">
+      <div class="dot" style="background:${isEcho ? '#1d4ed8' : '#166534'}"></div>
+      ${label}
+    </div>
+    <div class="log-body">${content}</div>`;
+  log.appendChild(entry);
+  entry.scrollIntoView({ behavior:'smooth', block:'nearest' });
+}
+
+// ══════════════════════════════════════════════
+// FREE QUESTION
+// ══════════════════════════════════════════════
+function freeQuestion() {
+  const input = document.getElementById('freeqInput');
+  const q = input.value.trim();
+  if (!q || !currentCase) return;
+  input.value = '';
+
+  const key = detectFreeQ(q);
+  if (key && currentCase.blocks[key]) {
+    revealBlock(key);
+  } else {
+    addLogEntry('📝 ' + q,
+      `<span style="color:var(--ink3)">この情報はこの症例では取得できないか、別のボタンから確認してください。<br>
+      ヒント：バイタル、問診、身体所見、各エコー部位のボタンを活用してください。</span>`,
+      false);
+  }
+}
+
+function detectFreeQ(t) {
+  t = t.toLowerCase();
+  if (/abcde|一次評価|気道|airway|呼吸音|呼吸様式|末梢冷感|冷汗|意識.*レベル|麻痺|瞳孔|環境/.test(t)) return 'abcde';
+  if (/opqrst|onset|発症.*様式|増悪|寛解|quality|痛み.*性状|region|radiation|放散|severity|nrs|time.*経過/.test(t)) return 'opqrst';
+  if (/痛み.*いつ|いつから.*痛|どんな.*痛み|どこが.*痛|どのくらい.*痛|ずっと.*痛|随伴症状/.test(t)) return 'opqrst';
+  if (/ample|allergy|アレルギー|medication|最終食事|last meal|内服|既往/.test(t)) return 'ample';
+  if (/バイタル|血圧|脈拍|体温|spo2|呼吸数/.test(t)) return 'vital';
+  if (/問診|現病歴|主訴|痛み.*性状|どこが痛|発症/.test(t)) return 'opqrst';
+  if (/身体所見|触診|触れ|膝.*腫|関節.*腫|聴診|皮疹|リンパ/.test(t)) return 'physical';
+  if (/採血|血液検査|wbc|crp|hb|炎症|lac|尿酸|ua/.test(t)) return 'lab';
+  if (/肺エコー|lung|bライン|気胸|胸膜sliding/.test(t)) return 'echo_lung';
+  if (/plax|長軸|傍胸骨.*長/.test(t)) return 'echo_plax';
+  if (/psax|短軸|傍胸骨.*短|d.shape/.test(t)) return 'echo_psax';
+  if (/a4c|四腔|心尖/.test(t)) return 'echo_a4c';
+  if (/ivc|下大静脈|虚脱/.test(t)) return 'echo_ivc';
+  if (/fast.*エコー|モリソン|脾周囲|腹水エコー/.test(t)) return 'echo_fast';
+  if (/腹部大動脈|大動脈.*エコー|大動脈瘤|aorta/.test(t)) return 'echo_aorta';
+  if (/胆嚢|胆石|murphy/.test(t)) return 'echo_gallbladder';
+  if (/腎臓|水腎|腎盂/.test(t)) return 'echo_kidney';
+  if (/dvt|下肢.*静脈|膝窩静脈|血栓/.test(t)) return 'echo_dvt';
+  if (/膝蓋上嚢|膝.*エコー|cppd|偽痛風/.test(t)) return 'echo_knee';
+  if (/肩|上腕二頭筋|長頭腱/.test(t)) return 'echo_shoulder';
+  if (/甲状腺/.test(t)) return 'echo_thyroid';
+  if (/鑑別|診断|cppd|偽痛風/.test(t)) return 'dx';
+  return null;
+}
+
+// ══════════════════════════════════════════════
+// PHASE BAR
+// ══════════════════════════════════════════════
+let maxPhase = 0;
+
+function updatePhaseBar(phase) {
+  if (phase > maxPhase) {
+    for (let i = 0; i <= maxPhase; i++) {
+      const el = document.getElementById('ph' + i);
+      if (el) el.className = 'phase-step done';
     }
-    shownSections.add(id);
-    revealNextButton(id);
+    document.getElementById('ph' + phase).className = 'phase-step current';
+    maxPhase = phase;
   }
-
-  function revealNextButton(justShown) {
-    const map = {
-      'sec-vital': 'btn-abcde',
-      'sec-abcde': 'btn-opqrst',
-      'sec-opqrst': 'btn-ample',
-      'sec-ample': 'btn-pe',
-      'sec-pe': 'btn-lab',
-      'sec-lab': 'btn-echo',
-      'sec-echo': 'btn-dx',
-      'sec-scoring': null,
-    };
-    const next = map[justShown];
-    if (next) document.getElementById(next)?.classList.remove('hidden');
-    // Hide the button that was just triggered
-    const btnMap = {
-      'sec-vital': 'btn-vital',
-      'sec-abcde': 'btn-abcde',
-      'sec-opqrst': 'btn-opqrst',
-      'sec-ample': 'btn-ample',
-      'sec-pe': 'btn-pe',
-      'sec-lab': 'btn-lab',
-    };
-    const hideBtn = btnMap[justShown];
-    if (hideBtn) document.getElementById(hideBtn)?.classList.add('hidden');
+  if (maxPhase >= 3) {
+    document.getElementById('finishBtn').classList.add('visible');
   }
+}
 
-  function showEchoSection() {
-    document.getElementById('sec-echo').classList.remove('hidden');
-    document.getElementById('btn-echo').classList.add('hidden');
-    setTimeout(() => document.getElementById('sec-echo').scrollIntoView({ behavior:'smooth' }), 100);
-    // Show dx button after a moment
-    setTimeout(() => {
-      document.getElementById('btn-dx').classList.remove('hidden');
-    }, 800);
+function checkFinishVisible() {
+  if (maxPhase >= 3) {
+    document.getElementById('finishBtn').classList.add('visible');
   }
+}
 
-  // Echo tab switching
-  function showEcho(name) {
-    // Hide all panels
-    allEchos.forEach(n => {
-      document.getElementById('ep-'+n).classList.remove('active');
-      document.getElementById('tab-'+n).classList.remove('active');
-    });
-    // Show selected
-    document.getElementById('ep-'+name).classList.add('active');
-    document.getElementById('tab-'+name).classList.add('active');
+// ══════════════════════════════════════════════
+// FINISH / SCORE
+// ══════════════════════════════════════════════
+function showScoreSheet() {
+  document.getElementById('finishBtn').classList.remove('visible');
+  const sheet = document.getElementById('scoreSheet');
+  sheet.classList.add('visible');
+  sheet.scrollIntoView({ behavior:'smooth' });
 
-    // Mark as done
-    echoDone.add(name);
-    document.getElementById('tab-'+name).classList.add('done');
+  document.getElementById('scoreSheetSub').textContent =
+    `${currentCase.badge} ／ 合計${currentCase.scoreItems.reduce((s,i)=>s+i.max,0)}点満点　（隠れた診断：${currentCase.hiddenDx}）`;
 
-    // Check if enough echo done to show score button
-    if (echoDone.size >= 3) {
-      document.getElementById('scoreBtn-container').classList.remove('hidden');
+  buildScoreTable();
+}
+
+function buildScoreTable() {
+  const table = document.getElementById('scoreTable');
+  table.innerHTML = `
+    <thead>
+      <tr>
+        <th>評価項目</th>
+        <th>評価基準</th>
+        <th style="text-align:center">得点</th>
+        <th style="text-align:center">MAX</th>
+      </tr>
+    </thead>
+    <tbody id="scoreTbody"></tbody>`;
+
+  const tbody = document.getElementById('scoreTbody');
+  currentCase.scoreItems.forEach((item, i) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><strong>${item.item}</strong></td>
+      <td style="color:var(--ink3); font-size:12px;">${item.criteria}</td>
+      <td style="text-align:center;">
+        <div class="score-check">
+          ${buildScoreBoxes(i, item.max)}
+        </div>
+      </td>
+      <td style="text-align:center; font-family:var(--mono); color:var(--ink3);">${item.max}</td>`;
+    tbody.appendChild(tr);
+  });
+
+  updateTotalScore();
+}
+
+function buildScoreBoxes(rowIdx, max) {
+  let html = '';
+  for (let v = 1; v <= max; v++) {
+    html += `<div class="check-box" id="chk_${rowIdx}_${v}" onclick="toggleScore(${rowIdx},${v},${max})">${v}</div>`;
+  }
+  return html;
+}
+
+let scoreState = {};
+
+window.addEventListener('DOMContentLoaded', () => {
+  openCase(0);
+});
+
+function toggleScore(row, val, max) {
+  const key = `r${row}`;
+  const cur = scoreState[key] || 0;
+  scoreState[key] = (cur === val) ? 0 : val;
+
+  for (let v = 1; v <= max; v++) {
+    const box = document.getElementById(`chk_${row}_${v}`);
+    if (!box) continue;
+    const sel = scoreState[key];
+    if (sel >= v) {
+      box.className = 'check-box checked';
+    } else {
+      box.className = 'check-box';
     }
   }
+  updateTotalScore();
+}
 
-  function showScoringBtn() {
-    document.getElementById('scoreBtn-container').classList.remove('hidden');
-  }
+function updateTotalScore() {
+  const total = Object.values(scoreState).reduce((a,b) => a+b, 0);
+  const maxTotal = currentCase.scoreItems.reduce((s,i) => s+i.max, 0);
+  document.getElementById('totalScoreVal').textContent = `${total} / ${maxTotal}`;
 
-  // Flow indicator
-  function markFlow(id) {
-    // Mark previous as done
-    const steps = ['flow-init','flow-vital','flow-hx','flow-pe','flow-lab','flow-echo','flow-dx'];
-    const idx = steps.indexOf(id);
-    steps.forEach((s, i) => {
-      const el = document.getElementById(s);
-      if (!el) return;
-      el.classList.remove('done','current','pending');
-      if (i < idx) el.classList.add('done');
-      else if (i === idx) el.classList.add('current');
-      else el.classList.add('pending');
-    });
+  const comment = document.getElementById('scoreComment');
+  const pct = total / maxTotal;
+  if (pct >= 0.85) {
+    comment.className = 'score-comment great';
+    comment.innerHTML = `🏆 <strong>優秀！</strong>　${total}点 / ${maxTotal}点。びまん性疼痛の中から右膝関節炎を同定し、エコーでCPPDを適切に診断できました。本番でも自信を持って臨んでください。`;
+  } else if (pct >= 0.65) {
+    comment.className = 'score-comment good';
+    comment.innerHTML = `✅ <strong>良好。</strong>　${total}点 / ${maxTotal}点。基本的な流れは掴めています。「膝蓋上嚢の点状高輝度エコー＝CPPD示唆」というポイントと、エコーコメントの声出しをさらに練習しましょう。`;
+  } else {
+    comment.className = 'score-comment review';
+    comment.innerHTML = `📖 <strong>要復習。</strong>　${total}点 / ${maxTotal}点。「発熱＋びまん性疼痛」の高齢者では局所の関節炎が隠れていることを意識してください。膝エコー（膝蓋上嚢の液体貯留＋点状エコー）の描出を重点的に練習しましょう。`;
   }
-
-  // Progress
-  function updateProgress(pct) {
-    document.getElementById('progressFill').style.width = pct + '%';
-  }
+}
 </script>
-
 </body>
 </html>
